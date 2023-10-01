@@ -5,7 +5,8 @@ from PyQt5.QtGui import QDrag, QPixmap, QPainter, QPolygonF, QPen
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QGraphicsScene, QGraphicsView, \
     QFileDialog
 
-from editor_classes.popupinput import PopUpInput
+from editor_classes.editorscene import EditorScene
+from editor_classes.popup import PopUpInput, PopUp, PopUpEditWay
 from map_class import RailMap
 
 
@@ -67,7 +68,7 @@ class EditorTab(QWidget):
         self.layout.addLayout(self.button_layout)
         # self.layout.addWidget(self.table)
 
-        self.scene = QGraphicsScene(0, 0, 4000, 1080)
+        self.scene = EditorScene(self, 0, 0, 4000, 1080)
         # self.draw_map()
 
         self.view = QGraphicsView(self.scene)
@@ -104,44 +105,34 @@ class EditorTab(QWidget):
             self.rmap = RailMap(fileName)
             self.draw_map()
 
-    def pop_up_input_handle(self, popUpInputObj: PopUpInput):
-        if popUpInputObj.op == "add_row":
-            self.rmap.ways.append([popUpInputObj.content, 1])
-        self.popUps.remove(popUpInputObj)
+    def new_map(self):
+        self.rmap = RailMap()
         self.draw_map()
 
+    def edit_row(self, way):
+        msg = PopUpEditWay(self, "edit_row", way)
+        msg.show()
+        self.popUps.append(msg)
+
     def add_row(self):
-        if self.rmap is not None:
+        if self.rmap is not None and (len(self.popUps) == 0 or not isinstance(self.popUps[-1], PopUp)):
             msg = PopUpInput(self, "add_row")
             msg.show()
             self.popUps.append(msg)
-        # current_row_count = self.table.rowCount()
-        # self.table.setRowCount(current_row_count + 1)
 
     def remove_row(self):
         if self.rmap is not None:
             if len(self.rmap.ways) > 0:
                 self.rmap.ways.pop()
                 self.draw_map()
-        # current_row_count = self.table.rowCount()
-        # if current_row_count > 0:
-        #     self.table.setRowCount(current_row_count - 1)
 
-    def new_map(self):
-        self.rmap = RailMap()
+    def pop_up_handle(self, popUpObj: PopUp):
+        if popUpObj.op == "add_row":
+            self.rmap.ways.append([popUpObj.content, 1])
+        elif popUpObj.op == "edit_row":
+            self.rmap.ways.remove(popUpObj.content)
+        self.popUps.remove(popUpObj)
         self.draw_map()
-
-    def file_save(self):
-        pass
-
-    # def add_column(self):
-    #     current_column_count = self.table.columnCount()
-    #     self.table.setColumnCount(current_column_count + 1)
-    #
-    # def remove_column(self):
-    #     current_column_count = self.table.columnCount()
-    #     if current_column_count > 0:
-    #         self.table.setColumnCount(current_column_count - 1)
 
     def draw_map(self):
         self.scene.clear()
@@ -169,9 +160,9 @@ class EditorTab(QWidget):
             textitem = self.scene.addText(name)
             textitem.setPos(3, w_s_y + height // 2)
             w_s_y += height * y
-            print((x0, w_s_y), (hours * x, w_s_y), (hours * x, w_s_y + y * height), (x0, w_s_y + y * height))
+            # print((x0, w_s_y), (hours * x, w_s_y), (hours * x, w_s_y + y * height), (x0, w_s_y + y * height))
         # вертикальные линии
-        for i in range(1, hours+1):
+        for i in range(1, hours + 1):
             self.scene.addPolygon(
                 QPolygonF(
                     [
@@ -183,12 +174,27 @@ class EditorTab(QWidget):
                 self.scene.addPolygon(
                     QPolygonF(
                         [
-                            QPointF(i * x + x//2, y0),
-                            QPointF(i * x + x//2, w_s_y),
+                            QPointF(i * x + x // 2, y0),
+                            QPointF(i * x + x // 2, w_s_y),
                         ]), QPen(Qt.black, 1, Qt.DotLine)
                 )
             textitem = self.scene.addText(str(self.rmap.start + i - 1) + ":00")
             textitem.setPos(i * x - 12, 0)
+
+    def on_click(self, pos):
+        if self.rmap is not None and (len(self.popUps) == 0 or not isinstance(self.popUps[-1], PopUp)):
+            x = 150
+            y = 50
+            x0 = 0
+            y0 = 17
+            w_s_y = y0
+            if x > pos[0] > x0:
+                for way in self.rmap.ways:
+                    if w_s_y + y * way[1] > pos[1] > w_s_y:
+                        print(way[0])
+                        self.edit_row(way)
+                        break
+                    w_s_y += y * way[1]
             # def dragEnterEvent(self, event):
     #     if event.mimeData().hasText():
     #         event.acceptProposedAction()
