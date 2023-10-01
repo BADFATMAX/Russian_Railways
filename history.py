@@ -1,4 +1,9 @@
-import flet as ft
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton
 
-def create_history_tab():
-    return ft.Tab(text="History", content=ft.Container(content=ft.Text("History content")))
+class HistoryTab(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.layout = QVBoxLayout()
+        self.pushButton = QPushButton("History Tab Button")
+        self.layout.addWidget(self.pushButton)
+        self.setLayout(self.layout)

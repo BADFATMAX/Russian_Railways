@@ -1,47 +1,24 @@
-import flet as ft
-from editor import create_editor_tab
-from history import create_history_tab
-from joint_mode import create_joint_mode_tab
-from story_game import create_story_game_tab
-from rhythm_game import create_rhythm_game_tab
-from training_cards import create_training_cards_tab
-from verification import create_verification_tab
-from documentation import create_documentation_tab
-from leaderboard import create_leaderboard_tab
-from admin_panel import create_admin_panel_tab
+import sys
+from PyQt5.QtWidgets import QApplication, QMainWindow, QTabWidget
+from editor import EditorTab
+from history import HistoryTab
 
-def main(page: ft.Page):
-    page.title = "Flet Mode Tabs"
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("PyQT Tabs")
+        self.tab_widget = QTabWidget()
 
-    editor_tab = create_editor_tab()
-    history_tab = create_history_tab()
-    joint_mode_tab = create_joint_mode_tab()
-    story_game_tab = create_story_game_tab()
-    rhythm_game_tab = create_rhythm_game_tab()
-    training_cards_tab = create_training_cards_tab()
-    verification_tab = create_verification_tab()
-    documentation_tab = create_documentation_tab()
-    leaderboard_tab = create_leaderboard_tab()
-    admin_panel_tab = create_admin_panel_tab()
-    
+        editor_tab = EditorTab()
+        history_tab = HistoryTab()
 
-    tabs = ft.Tabs(
-        tabs=[
-            editor_tab,
-            history_tab,
-            joint_mode_tab,
-            story_game_tab,
-            rhythm_game_tab,
-            training_cards_tab,
-            verification_tab,
-            documentation_tab,
-            leaderboard_tab,
-            admin_panel_tab,
-        ],
-        selected_index=0,
-        animation_duration=300
-    )
+        self.tab_widget.addTab(editor_tab, "Editor")
+        self.tab_widget.addTab(history_tab, "History")
 
-    page.add(tabs)
+        self.setCentralWidget(self.tab_widget)
 
-ft.app(target=main)
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    window = MainWindow()
+    window.show()
+    sys.exit(app.exec_())
