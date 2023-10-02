@@ -5,26 +5,10 @@ from PyQt5.QtGui import QDrag, QPixmap, QPainter, QPolygonF, QPen
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QGraphicsScene, QGraphicsView, \
     QFileDialog
 
+from editor_classes.draggable import DraggableLabel
 from editor_classes.editorscene import EditorScene
-from editor_classes.popup import PopUpInput, PopUp, PopUpEditWay
+from editor_classes.popup import PopUpInput, PopUp, PopUpEditWay, deleteItemsOfLayout
 from map_class import RailMap
-
-
-class DraggableLabel(QLabel):
-    def mousePressEvent(self, event):
-        pixmap = QPixmap(self.size())
-        self.render(pixmap)
-
-        mime_data = QMimeData()
-        mime_data.setText(self.text())
-
-        drag = QDrag(self)
-        drag.setMimeData(mime_data)
-        drag.setPixmap(pixmap)
-        drag.setHotSpot(event.pos())
-
-        drag.exec_(Qt.MoveAction)
-
 
 class EditorTab(QWidget):
     def __init__(self):
@@ -45,33 +29,18 @@ class EditorTab(QWidget):
         remove_row_button = QPushButton("Remove Row")
         remove_row_button.clicked.connect(self.remove_row)
 
-        # self.add_column_button = QPushButton("Add Column")
-        # self.add_column_button.clicked.connect(self.add_column)
-        #
-        # self.remove_column_button = QPushButton("Remove Column")
-        # self.remove_column_button.clicked.connect(self.remove_column)
-
         self.button_layout.addWidget(save_map_button)
         self.button_layout.addWidget(load_map_button)
         self.button_layout.addWidget(new_map_button)
         self.button_layout.addWidget(add_row_button)
         self.button_layout.addWidget(remove_row_button)
-        # button_layout.addWidget(self.add_column_button)
-        # button_layout.addWidget(self.remove_column_button)
-
-        # self.table = CustomTableWidget()
-        # self.table.setRowCount(5)
-        # self.table.setColumnCount(4)
-        # self.table.setSelectionMode(QTableWidget.SingleSelection)
-        # self.table.setDragDropMode(QTableWidget.DragDrop)
 
         self.layout.addLayout(self.button_layout)
-        # self.layout.addWidget(self.table)
 
         self.scene = EditorScene(self, 0, 0, 4000, 1080)
-        # self.draw_map()
 
         self.view = QGraphicsView(self.scene)
+        self.view.setAcceptDrops(True)
         self.view.setRenderHint(QPainter.Antialiasing)
 
         self.layout.addWidget(self.view)
@@ -115,7 +84,7 @@ class EditorTab(QWidget):
         self.popUps.append(msg)
 
     def add_row(self):
-        if self.rmap is not None and (len(self.popUps) == 0 or not isinstance(self.popUps[-1], PopUp)):
+        if self.rmap is not None:  # and (len(self.popUps) == 0 or not isinstance(self.popUps[-1], PopUp)):
             msg = PopUpInput(self, "add_row")
             msg.show()
             self.popUps.append(msg)
@@ -128,10 +97,34 @@ class EditorTab(QWidget):
 
     def pop_up_handle(self, popUpObj: PopUp):
         if popUpObj.op == "add_row":
-            self.rmap.ways.append([popUpObj.content, 1])
-        elif popUpObj.op == "edit_row":
-            self.rmap.ways.remove(popUpObj.content)
-        self.popUps.remove(popUpObj)
+            self.rmap.ways.append([popUpObj.content['new name'], 1])
+        elif popUpObj.op == "way_del":
+            self.rmap.ways.remove(popUpObj.content['way'])
+        # else:
+        #     print("UNKNOWN POPUP WINDOWS MESSAGE")
+        #     for popup in self.popUps:
+        #         if isinstance(popup, PopUp):
+        #             popup.close()
+        try:
+            self.popUps.remove(popUpObj)
+        except ValueError:
+            print("No such popup in list!")
+        self.draw_map()
+
+    def pop_up_temp_handle(self, popUpObj: PopUp):
+        if popUpObj.op == "way_rename":
+            i = self.rmap.ways.index(popUpObj.content['way'])
+            self.rmap.ways[i][0] = popUpObj.content['new name']
+        elif popUpObj.op == "way_up":
+            i = self.rmap.ways.index(popUpObj.content['way'])
+            if i > 0:
+                self.rmap.ways[i] = self.rmap.ways[i - 1]
+                self.rmap.ways[i - 1] = popUpObj.content['way']
+        elif popUpObj.op == "way_down":
+            i = self.rmap.ways.index(popUpObj.content['way'])
+            if i < (len(self.rmap.ways) - 1):
+                self.rmap.ways[i] = self.rmap.ways[i + 1]
+                self.rmap.ways[i + 1] = popUpObj.content['way']
         self.draw_map()
 
     def draw_map(self):
@@ -182,7 +175,7 @@ class EditorTab(QWidget):
             textitem.setPos(i * x - 12, 0)
 
     def on_click(self, pos):
-        if self.rmap is not None and (len(self.popUps) == 0 or not isinstance(self.popUps[-1], PopUp)):
+        if self.rmap is not None:  # and (len(self.popUps) == 0 or not isinstance(self.popUps[-1], PopUp)):
             x = 150
             y = 50
             x0 = 0
@@ -195,6 +188,11 @@ class EditorTab(QWidget):
                         self.edit_row(way)
                         break
                     w_s_y += y * way[1]
+
+    def drop_element(self, el: DraggableLabel):
+        if self.rmap is not None:
+            self.edit_row(self.rmap.ways[0])
+
             # def dragEnterEvent(self, event):
     #     if event.mimeData().hasText():
     #         event.acceptProposedAction()
