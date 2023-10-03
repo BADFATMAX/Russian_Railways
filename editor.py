@@ -1,9 +1,10 @@
+from PyQt5 import QtSvg
 from PyQt5.QtCore import QPointF
 from PyQt5.QtCore import QPointF
 from PyQt5.QtCore import Qt, QMimeData
 from PyQt5.QtGui import QDrag, QPixmap, QPainter, QPolygonF, QPen, QBrush
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QGraphicsScene, QGraphicsView, \
-    QFileDialog
+    QFileDialog, QGridLayout, QFrame
 
 from editor_classes.draggable import DraggableLabel
 from editor_classes.editorscene import EditorScene
@@ -46,14 +47,40 @@ class EditorTab(QWidget):
 
         self.layout.addWidget(self.view)
 
+
+        layout_bottom = QGridLayout()
+        # layout_bottom.setSpacing(1000)
+
+        left = QWidget()
+        left.setFixedWidth(600)
+        left.setStyleSheet("border: 1px solid black;")
+        layout_left = QGridLayout()
+        left.setLayout(layout_left)
+        layout_left.setSpacing(2)
+
+        layout_bottom.addWidget(left, 0, 0, Qt.AlignLeft)
+
+        layout_right = QVBoxLayout()
+
+        layout_bottom.addLayout(layout_right, 0, 2)
+        self.info_layout = layout_right
+
         self.elements = []
         for i in range(5):
-            element = DraggableLabel(f"Element {i + 1}")
-            element.setFixedSize(100, 50)
+            element = DraggableLabel(self)
+            element.text_ = f"Element {i + 1}"
+            element.setFixedSize(100, 67)
             element.setStyleSheet("border: 1px solid black;")
-            self.elements.append(element)
-            self.layout.addWidget(element)
 
+            pixmap = QPixmap('elements\\anchoring_label.svg')
+            pixmap = pixmap.scaled(100, 67)
+            element.setPixmap(pixmap)
+
+            self.elements.append(element)
+            # self.layout.addWidget(element)
+            layout_left.addWidget(element, i / 3, i % 3, Qt.AlignLeft)
+
+        self.layout.addLayout(layout_bottom)
         self.setLayout(self.layout)
 
     def save_map(self):
@@ -206,16 +233,20 @@ class EditorTab(QWidget):
                     # сделать функционал для отрисовки элементов, разных
                     x_s_el = x0 + x * (el['time_s'].hour - self.rmap.start + 1) + (x // 60) * el['time_s'].minute
                     x_e_el = x0 + x * (el['time_e'].hour - self.rmap.start + 1) + (x // 60) * el['time_e'].minute
-                    self.scene.addPolygon(
-                        QPolygonF(
-                            [
-                                QPointF(x_s_el, w_s_y),
-                                QPointF(x_e_el, w_s_y),
-                                QPointF(x_e_el, w_s_y + y * height),
-                                QPointF(x_s_el, w_s_y + y * height),
-                            ]),
-                        brush=QBrush(Qt.lightGray)
-                    )
+                    svgWidget = QtSvg.QSvgWidget('elements\\anchoring.svg')
+                    svgWidget.setGeometry(x_s_el, w_s_y, x_e_el - x_s_el, y * height)
+                    # renderer = QtSvg.QSvgRenderer('elements\\anchoring.svg')
+                    self.scene.addWidget(svgWidget)
+                    # self.scene.addPolygon(
+                    #     QPolygonF(
+                    #         [
+                    #             QPointF(x_s_el, w_s_y),
+                    #             QPointF(x_e_el, w_s_y),
+                    #             QPointF(x_e_el, w_s_y + y * height),
+                    #             QPointF(x_s_el, w_s_y + y * height),
+                    #         ]),
+                    #     brush=QBrush(Qt.lightGray)
+                    # )
                     textitem = self.scene.addText(el['name'])
                     textitem.setPos(x_s_el, w_s_y + (y // 2))
             except KeyError:
