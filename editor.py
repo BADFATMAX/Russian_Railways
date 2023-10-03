@@ -7,8 +7,9 @@ from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLab
 
 from editor_classes.draggable import DraggableLabel
 from editor_classes.editorscene import EditorScene
-from editor_classes.popup import PopUpInput, PopUp, PopUpEditWay, deleteItemsOfLayout, PopUpInsertElement
+from editor_classes.popup import PopUpInput, PopUp, PopUpEditWay, deleteItemsOfLayout, PopUpInsertElement, PopUpEditElement
 from map_class import RailMap
+
 
 class EditorTab(QWidget):
     def __init__(self):
@@ -16,7 +17,7 @@ class EditorTab(QWidget):
         self.layout = QVBoxLayout()
         self.button_layout = QHBoxLayout()
         self.popUps = []
-        self.rmap = None
+        self.rmap = RailMap()
 
         save_map_button = QPushButton("Save")
         save_map_button.clicked.connect(self.save_map)
@@ -76,23 +77,24 @@ class EditorTab(QWidget):
 
     def new_map(self):
         self.rmap = RailMap()
+        self.rmap.set_visible(True)
         self.draw_map()
 
-    def edit_row(self, w_id):
+    def edit_row(self, w_id: int):
         msg = PopUpEditWay(self, "edit_row", w_id)
         msg.show()
         self.popUps.append(msg)
         print(self.rmap.elements.keys())
 
     def add_row(self):
-        if self.rmap is not None:  # and (len(self.popUps) == 0 or not isinstance(self.popUps[-1], PopUp)):
+        if self.rmap.visible:  # and (len(self.popUps) == 0 or not isinstance(self.popUps[-1], PopUp)):
             msg = PopUpInput(self, "add_row")
             msg.show()
             self.popUps.append(msg)
             print(self.rmap.elements.keys())
 
     def remove_row(self):
-        if self.rmap is not None:
+        if self.rmap.visible:
             if len(self.rmap.ways) > 0:
                 # index = self.rmap.ways.index(self.rmap.ways[-1])
                 # print(index)
@@ -120,7 +122,8 @@ class EditorTab(QWidget):
                     self.rmap.elements.update({key - 1: el})
             del self.rmap.ways[popUpObj.content['w_id']]
         elif popUpObj.op == "element_insert":
-            new_el = {'name': popUpObj.content['element'].text(), 'time_s': popUpObj.content['time_s'], 'time_e': popUpObj.content['time_e']}
+            new_el = {'name': popUpObj.content['element'].text(), 'time_s': popUpObj.content['time_s'],
+                      'time_e': popUpObj.content['time_e']}
             i = popUpObj.content['w_id']
             try:
                 way_list = self.rmap.elements[i]
@@ -150,6 +153,7 @@ class EditorTab(QWidget):
                     self.rmap.elements.pop(iother)
                 except KeyError:
                     pass
+
         if popUpObj.op == "way_rename":
             i = popUpObj.content['w_id']
             self.rmap.ways[i][0] = popUpObj.content['new name']
@@ -199,9 +203,9 @@ class EditorTab(QWidget):
             try:
                 elements = self.rmap.elements[w_id]
                 for el in elements:
-                    #сделать функционал для отрисовки элементов, разных
-                    x_s_el = x0 + x * (el['time_s'].hour - self.rmap.start + 1) + (x//60) * el['time_s'].minute
-                    x_e_el = x0 + x * (el['time_e'].hour - self.rmap.start + 1) + (x//60) * el['time_e'].minute
+                    # сделать функционал для отрисовки элементов, разных
+                    x_s_el = x0 + x * (el['time_s'].hour - self.rmap.start + 1) + (x // 60) * el['time_s'].minute
+                    x_e_el = x0 + x * (el['time_e'].hour - self.rmap.start + 1) + (x // 60) * el['time_e'].minute
                     self.scene.addPolygon(
                         QPolygonF(
                             [
@@ -213,7 +217,7 @@ class EditorTab(QWidget):
                         brush=QBrush(Qt.lightGray)
                     )
                     textitem = self.scene.addText(el['name'])
-                    textitem.setPos(x_s_el, w_s_y + (y//2))
+                    textitem.setPos(x_s_el, w_s_y + (y // 2))
             except KeyError:
                 pass
             w_s_y += height * y
@@ -239,7 +243,7 @@ class EditorTab(QWidget):
             textitem.setPos(i * x - 12, 0)
 
     def on_click(self, pos):
-        if self.rmap is not None:  # and (len(self.popUps) == 0 or not isinstance(self.popUps[-1], PopUp)):
+        if self.rmap.visible:  # and (len(self.popUps) == 0 or not isinstance(self.popUps[-1], PopUp)):
             x = 180
             y = 50
             x0 = 0
@@ -271,7 +275,7 @@ class EditorTab(QWidget):
                     w_s_y += y * way[1]
 
     def drop_element(self, el: DraggableLabel, pos):
-        if self.rmap is not None:
+        if self.rmap.visible:
             x = 180
             y = 50
             x0 = 0
@@ -285,11 +289,13 @@ class EditorTab(QWidget):
                     break
                 w_s_y += y * way[1]
 
-    def edit_elem(self, w_id, elem):
-        pass
-            # self.edit_row(self.rmap.ways[0])
+    def edit_elem(self, w_id: int, elem: dict):
+        msg = PopUpEditElement(self, "element_edit", w_id, elem)
+        msg.show()
+        self.popUps.append(msg)
+        # self.edit_row(self.rmap.ways[0])
 
-            # def dragEnterEvent(self, event):
+        # def dragEnterEvent(self, event):
     #     if event.mimeData().hasText():
     #         event.acceptProposedAction()
     #     else:

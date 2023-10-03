@@ -4,6 +4,8 @@ from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLineEdit, QPushB
     QDialogButtonBox, QFrame, QAbstractSpinBox, QToolButton, QGroupBox, QDateEdit, QTimeEdit
 from datetime import time
 
+from .draggable import DraggableLabel
+
 
 def deleteItemsOfLayout(layout):
     if layout is not None:
@@ -17,7 +19,7 @@ def deleteItemsOfLayout(layout):
 
 
 class PopUp(QDialog):
-    def __init__(self, parent, op):
+    def __init__(self, parent, op: str):
         super().__init__(parent, Qt.WindowSystemMenuHint | Qt.WindowTitleHint)
         self.parent = parent
         self.op = op
@@ -76,7 +78,7 @@ class PopUpInput(PopUp):
 
 
 class PopUpEditWay(PopUp):
-    def __init__(self, parent, op, w_id):
+    def __init__(self, parent, op, w_id: int):
         # super(PopUpInput, self).__init__(parent)
         super().__init__(parent, op)
 
@@ -204,7 +206,7 @@ class PopUpEditWay(PopUp):
 
 
 class PopUpInsertElement(PopUp):
-    def __init__(self, parent, op, el, w_id):
+    def __init__(self, parent, op, el: DraggableLabel, w_id: int):
         # super(PopUpInput, self).__init__(parent)
         super().__init__(parent, op)
 
@@ -240,13 +242,76 @@ class PopUpInsertElement(PopUp):
 
     def insert(self):
         self.exit_flag = True
-        time_s = time(hour= int(self.time_edits[0].time().hour()), minute= int(self.time_edits[0].time().minute()))
+        time_s = time(hour=int(self.time_edits[0].time().hour()), minute=int(self.time_edits[0].time().minute()))
         time_e = time(hour=int(self.time_edits[1].time().hour()), minute=int(self.time_edits[1].time().minute()))
         self.content.update({'time_s': time_s, 'time_e': time_e})
         self.parent.pop_up_handle(self)
         self.close()
 
-    class PopUpEditElement(PopUp):
-        def __init__(self, parent, op, way, el):
-            # super(PopUpInput, self).__init__(parent)
-            super().__init__(parent, op)
+class PopUpEditElement(PopUp):
+    def __init__(self, parent, op, w_id:int, el:dict):
+        # super(PopUpInput, self).__init__(parent)
+        super().__init__(parent, op)
+
+        self.content = {'w_id': w_id, 'element': el, 'old_element': el.copy()}
+        self.layout = QVBoxLayout()
+        self.setWindowTitle("Изменить элемент")
+
+        time_edit_layout = QHBoxLayout()
+        cur_time1 = QTime()
+        cur_time1.setHMS(el['time_s'].hour, el['time_s'].minute, 0, 0)
+        timeEdit1 = QTimeEdit(cur_time1)
+        timeEdit1.setTimeRange(QTime(self.parent.rmap.start, 0, 0, 0), QTime(self.parent.rmap.end, 0, 0, 0))
+        timeEdit1.timeChanged.connect(self.edit_time_s)
+
+        cur_time2 = QTime()
+        cur_time2.setHMS(el['time_e'].hour, el['time_e'].minute, 0, 0)
+        timeEdit2 = QTimeEdit(cur_time2)
+        timeEdit2.setTimeRange(QTime(self.parent.rmap.start, 0, 0, 0), QTime(self.parent.rmap.end, 0, 0, 0))
+        # timeEdit2.editingFinished.connect(self.edit_time_e)
+        timeEdit2.timeChanged.connect(self.edit_time_e)
+        self.time_edits = [timeEdit1, timeEdit2]
+
+        time_edit_layout.addWidget(timeEdit1)
+        time_edit_layout.addWidget(timeEdit2)
+
+        buttons = QHBoxLayout()
+        send_button = QPushButton("ОК")
+        send_button.clicked.connect(self.cancel)
+        buttons.addWidget(send_button)
+
+        del_button = QPushButton("Удалить")
+        del_button.clicked.connect(self.delete)
+        buttons.addWidget(del_button)
+
+        cancel_button = QPushButton("Отмена")
+        cancel_button.clicked.connect(self.restore)
+        buttons.addWidget(cancel_button)
+
+        self.layout.addWidget(QLabel(f"Изменить \"{el['name']}({el['time_s'].strftime('%H:%M')}-{el['time_e'].strftime('%H:%M')})\" на \"{self.parent.rmap.ways[w_id][0]}\""))
+        self.layout.addLayout(time_edit_layout)
+        self.layout.addLayout(buttons)
+        self.setLayout(self.layout)
+        self.adjustSize()
+
+    def edit_time_s(self):
+        self.content['element']['time_s'] = time(hour=self.time_edits[0].time().hour(), minute=self.time_edits[0].time().minute())
+        self.parent.draw_map()
+
+    def edit_time_e(self):
+        self.content['element']['time_e'] = time(hour=self.time_edits[1].time().hour(), minute=self.time_edits[1].time().minute())
+        self.parent.draw_map()
+
+    def restore(self):
+        self.content['element'].clear()
+        self.content['element'].update(self.content['old_element'])
+        self.parent.draw_map()
+        self.cancel()
+
+    def delete(self):
+        way_index = self.content['w_id']
+        (self.parent.rmap.elements[way_index]).remove(self.content['element'])
+        if len(self.parent.rmap.elements[way_index]) < 1:
+            del self.parent.rmap.elements[way_index]
+        self.parent.draw_map()
+        self.cancel()

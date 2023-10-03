@@ -1,14 +1,16 @@
 import xml.etree.ElementTree as ET
 from datetime import time
 from datetime import datetime
+from typing import Union
 
 
 class RailMap:
-    def __init__(self, source=None):
-        self.elements = {}
-        self.ways = None
-        self.start = None
-        self.end = None
+    def __init__(self, source: Union[str, None] = None):
+        self.elements: dict[int, list[dict]] = {}
+        self.ways: Union[list[list[Union[str, int]]], None] = None
+        self.start: Union[int, None] = None
+        self.end: Union[int, None] = None
+        self.visible = False
         if source is None:
             self.build_default()
         else:
@@ -24,7 +26,7 @@ class RailMap:
         self.elements.update({self.ways.index(self.ways[2]): [
             {'name': 'Element 1', 'time_s': time(hour=6, minute=30), 'time_e': time(hour=7, minute=00)}]})
 
-    def save(self, name):
+    def save(self, name: str):
         root = ET.Element('xml')
         table = ET.SubElement(root, 'table')
         table.set('start', str(self.start))
@@ -49,7 +51,7 @@ class RailMap:
         file2write._setroot(root)
         file2write.write(name + '.xml', encoding="UTF-8", xml_declaration=True)
 
-    def load(self, name):
+    def load(self, name: str):
         tree = ET.parse(name)
         root = tree.getroot()
         table = root[0]
@@ -66,6 +68,9 @@ class RailMap:
             if len(elems) > 0:
                 self.elements.update({i: elems})
             i += 1
+
+    def set_visible(self, flag: bool):
+        self.visible = flag
 
 # def build_xml_empty():
 #     rows = ['Перегон Ш-А', "1 путь", "2 путь", "ТО локомотива", "Бригада ПТО", "Сигналист", "Перегон А-Б"]
