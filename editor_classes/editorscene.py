@@ -21,5 +21,5 @@ class EditorScene(QGraphicsScene):
         event.setAccepted(True)
 
     def dropEvent(self, event):
-        print(event.source().text())
-        self.parent.drop_element(event.source())
+        # print(event.source().text())
+        self.parent.drop_element(event.source(), (event.scenePos().x(), event.scenePos().y()))

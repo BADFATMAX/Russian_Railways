@@ -1,7 +1,8 @@
-from PyQt5.QtCore import QRect, Qt
+from PyQt5.QtCore import QRect, Qt, QDate, QTime
 from PyQt5.QtGui import QPainter
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLineEdit, QPushButton, QMessageBox, QDialog, QLabel, \
-    QDialogButtonBox, QFrame, QAbstractSpinBox, QToolButton
+    QDialogButtonBox, QFrame, QAbstractSpinBox, QToolButton, QGroupBox, QDateEdit, QTimeEdit
+from datetime import time
 
 
 def deleteItemsOfLayout(layout):
@@ -75,11 +76,11 @@ class PopUpInput(PopUp):
 
 
 class PopUpEditWay(PopUp):
-    def __init__(self, parent, op, way):
+    def __init__(self, parent, op, w_id):
         # super(PopUpInput, self).__init__(parent)
         super().__init__(parent, op)
 
-        self.content = {'way': way}
+        self.content = {'w_id': w_id}
         self.edit_line = None
 
         self.layout = QVBoxLayout()
@@ -88,7 +89,7 @@ class PopUpEditWay(PopUp):
         buttons.addLayout(buttons_ed)
 
         self.setWindowTitle("Редактировать путь")
-        self.layout.addWidget(QLabel("Редактировать путь: " + way[0]))
+        self.layout.addWidget(QLabel("Редактировать путь: " + self.parent.rmap.ways[w_id][0]))
 
         rename_button = QPushButton("Переименовать")
         rename_button.clicked.connect(self.rename)
@@ -156,7 +157,7 @@ class PopUpEditWay(PopUp):
             self.content.update({'new name': self.edit_line.text()})
             self.parent.pop_up_temp_handle(self)
             self.layout.removeWidget(self.layout.itemAt(0).widget())
-            self.layout.insertWidget(0, QLabel("Редактировать путь: " + self.content['way'][0]))
+            self.layout.insertWidget(0, QLabel("Редактировать путь: " + self.parent.rmap.ways[self.content['w_id']][0]))
             self.close_inner()
         else:
             self.edit_line.setText("Название пути")
@@ -202,4 +203,50 @@ class PopUpEditWay(PopUp):
         self.parent.pop_up_temp_handle(self)
 
 
+class PopUpInsertElement(PopUp):
+    def __init__(self, parent, op, el, w_id):
+        # super(PopUpInput, self).__init__(parent)
+        super().__init__(parent, op)
 
+        self.content = {'w_id': w_id, 'element': el}
+        self.layout = QVBoxLayout()
+        self.setWindowTitle("Поставить элемент")
+
+        time_edit_layout = QHBoxLayout()
+        timeEdit1 = QTimeEdit(QTime.currentTime())
+        timeEdit1.setTimeRange(QTime(self.parent.rmap.start, 0, 0, 0), QTime(self.parent.rmap.end, 0, 0, 0))
+
+        timeEdit2 = QTimeEdit(QTime.currentTime())
+        timeEdit2.setTimeRange(QTime(self.parent.rmap.start, 0, 0, 0), QTime(self.parent.rmap.end, 0, 0, 0))
+        self.time_edits = [timeEdit1, timeEdit2]
+
+        time_edit_layout.addWidget(timeEdit1)
+        time_edit_layout.addWidget(timeEdit2)
+
+        buttons = QHBoxLayout()
+        send_button = QPushButton("ОК")
+        send_button.clicked.connect(self.insert)
+        buttons.addWidget(send_button)
+
+        cancel_button = QPushButton("Отмена")
+        cancel_button.clicked.connect(self.cancel)
+        buttons.addWidget(cancel_button)
+
+        self.layout.addWidget(QLabel(f"Поставить \"{el.text()}\" на \"{self.parent.rmap.ways[w_id][0]}\""))
+        self.layout.addLayout(time_edit_layout)
+        self.layout.addLayout(buttons)
+        self.setLayout(self.layout)
+        self.adjustSize()
+
+    def insert(self):
+        self.exit_flag = True
+        time_s = time(hour= int(self.time_edits[0].time().hour()), minute= int(self.time_edits[0].time().minute()))
+        time_e = time(hour=int(self.time_edits[1].time().hour()), minute=int(self.time_edits[1].time().minute()))
+        self.content.update({'time_s': time_s, 'time_e': time_e})
+        self.parent.pop_up_handle(self)
+        self.close()
+
+    class PopUpEditElement(PopUp):
+        def __init__(self, parent, op, way, el):
+            # super(PopUpInput, self).__init__(parent)
+            super().__init__(parent, op)
