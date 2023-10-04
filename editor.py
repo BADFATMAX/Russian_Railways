@@ -1,15 +1,48 @@
 from PyQt5 import QtSvg
-from PyQt5.QtCore import QPointF
+from PyQt5.QtCore import QPointF, QPoint
 from PyQt5.QtCore import QPointF
 from PyQt5.QtCore import Qt, QMimeData
-from PyQt5.QtGui import QDrag, QPixmap, QPainter, QPolygonF, QPen, QBrush
+from PyQt5.QtGui import QDrag, QPixmap, QPainter, QPolygonF, QPen, QBrush, QWheelEvent
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QGraphicsScene, QGraphicsView, \
-    QFileDialog, QGridLayout, QFrame
+    QFileDialog, QGridLayout, QFrame, QApplication
 
 from editor_classes.draggable import DraggableLabel
 from editor_classes.editorscene import EditorScene
-from editor_classes.popup import PopUpInput, PopUp, PopUpEditWay, deleteItemsOfLayout, PopUpInsertElement, PopUpEditElement
+from editor_classes.popup import PopUpInput, PopUp, PopUpEditWay, deleteItemsOfLayout, PopUpInsertElement, \
+    PopUpEditElement
 from map_class import RailMap
+
+from functools import reduce
+
+
+class EditorView(QGraphicsView):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def wheelEvent(self, event: QWheelEvent):
+        modifiers = QApplication.keyboardModifiers()
+        if modifiers == Qt.ControlModifier:
+            sign = 1 if event.angleDelta().y() > 0 else -1
+            hsb = self.horizontalScrollBar()
+            print(hsb.maximum())
+            hsb.setValue(hsb.value() + sign * hsb.maximum() // 16)
+        elif modifiers == Qt.ShiftModifier:
+            sign = -1 if event.angleDelta().y() > 0 else 1
+            vsb = self.verticalScrollBar()
+            vsb.setValue(vsb.value() + sign * vsb.maximum() // 12)
+        elif event.angleDelta().y() > 0:
+            self.scale(1.6, 1.6)
+        else:
+            self.scale(0.625, 0.625)
+        self.parent().draw_map()
+
+
+class DashPen(QPen):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        space = 5
+        dashes = [2, space]
+        self.setDashPattern(dashes)
 
 
 class EditorTab(QWidget):
@@ -41,12 +74,12 @@ class EditorTab(QWidget):
 
         self.scene = EditorScene(self, 0, 0, 4000, 1080)
 
-        self.view = QGraphicsView(self.scene)
+        self.view = EditorView(self.scene, parent=self)
         self.view.setAcceptDrops(True)
         self.view.setRenderHint(QPainter.Antialiasing)
+        # self.view.scale(2, 2)
 
         self.layout.addWidget(self.view)
-
 
         layout_bottom = QGridLayout()
         # layout_bottom.setSpacing(1000)
@@ -66,19 +99,30 @@ class EditorTab(QWidget):
         self.info_layout = layout_right
 
         self.elements = []
-        for i in range(5):
+        for i, el_in_panel in enumerate(self.rmap.el_config):
             element = DraggableLabel(self)
-            element.text_ = f"Element {i + 1}"
-            element.setFixedSize(100, 67)
-            element.setStyleSheet("border: 1px solid black;")
-
-            pixmap = QPixmap('elements\\anchoring_label.svg')
-            pixmap = pixmap.scaled(100, 67)
+            element.text_ = self.rmap.el_config[el_in_panel]['name']
+            element.uri_ = el_in_panel
+            # element.setFixedSize(100, 67)
+            pixmap = QPixmap(self.rmap.el_config[el_in_panel]['svg_label'])
+            # pixmap = pixmap.scaled(100, 67)
             element.setPixmap(pixmap)
-
             self.elements.append(element)
-            # self.layout.addWidget(element)
             layout_left.addWidget(element, i / 3, i % 3, Qt.AlignLeft)
+
+        # for i in range(5):
+        #     element = DraggableLabel(self)
+        #     element.text_ = f"Element {i + 1}"
+        #     element.setFixedSize(100, 67)
+        #     element.setStyleSheet("border: 1px solid black;")
+        #
+        #     pixmap = QPixmap('elements\\anchoring_label.svg')
+        #     pixmap = pixmap.scaled(100, 67)
+        #     element.setPixmap(pixmap)
+        #
+        #     self.elements.append(element)
+        #     # self.layout.addWidget(element)
+        #     layout_left.addWidget(element, i / 3, i % 3, Qt.AlignLeft)
 
         self.layout.addLayout(layout_bottom)
         self.setLayout(self.layout)
@@ -100,6 +144,7 @@ class EditorTab(QWidget):
         if fileName:
             print(fileName)
             self.rmap = RailMap(fileName)
+            self.rmap.set_visible(True)
             self.draw_map()
 
     def new_map(self):
@@ -149,7 +194,8 @@ class EditorTab(QWidget):
                     self.rmap.elements.update({key - 1: el})
             del self.rmap.ways[popUpObj.content['w_id']]
         elif popUpObj.op == "element_insert":
-            new_el = {'name': popUpObj.content['element'].text(), 'time_s': popUpObj.content['time_s'],
+            new_el = {'uri': popUpObj.content['element'].uri_, 'name': popUpObj.content['element'].text(),
+                      'time_s': popUpObj.content['time_s'],
                       'time_e': popUpObj.content['time_e']}
             i = popUpObj.content['w_id']
             try:
@@ -203,82 +249,104 @@ class EditorTab(QWidget):
         self.draw_map()
 
     def draw_map(self):
-        self.scene.clear()
-        print("popups: ", self.popUps)
-        x = 180
-        y = 50
-        x0 = 0
-        y0 = 17
-        w_s_y = y0
-        hours = self.rmap.end - self.rmap.start + 1
-        # рендерит прямоугольники (пути)
-        for w_id, way in enumerate(self.rmap.ways):
-            height = way[1]
-            name = way[0]
-            self.scene.addPolygon(
-                QPolygonF(
-                    [
-                        QPointF(x0, w_s_y),
-                        QPointF(hours * x, w_s_y),
-                        QPointF(hours * x, w_s_y + y * height),
-                        QPointF(x0, w_s_y + y * height),
-                    ]),
-            )
-            # имя пути
-            textitem = self.scene.addText(name)
-            textitem.setPos(3, w_s_y + height // 2)
-            try:
-                elements = self.rmap.elements[w_id]
-                for el in elements:
-                    # сделать функционал для отрисовки элементов, разных
-                    x_s_el = x0 + x * (el['time_s'].hour - self.rmap.start + 1) + (x // 60) * el['time_s'].minute
-                    x_e_el = x0 + x * (el['time_e'].hour - self.rmap.start + 1) + (x // 60) * el['time_e'].minute
-                    svgWidget = QtSvg.QSvgWidget('elements\\anchoring.svg')
-                    svgWidget.setGeometry(x_s_el, w_s_y, x_e_el - x_s_el, y * height)
-                    # renderer = QtSvg.QSvgRenderer('elements\\anchoring.svg')
-                    self.scene.addWidget(svgWidget)
-                    # self.scene.addPolygon(
-                    #     QPolygonF(
-                    #         [
-                    #             QPointF(x_s_el, w_s_y),
-                    #             QPointF(x_e_el, w_s_y),
-                    #             QPointF(x_e_el, w_s_y + y * height),
-                    #             QPointF(x_s_el, w_s_y + y * height),
-                    #         ]),
-                    #     brush=QBrush(Qt.lightGray)
-                    # )
-                    textitem = self.scene.addText(el['name'])
-                    textitem.setPos(x_s_el, w_s_y + (y // 2))
-            except KeyError:
-                pass
-            w_s_y += height * y
-            # print((x0, w_s_y), (hours * x, w_s_y), (hours * x, w_s_y + y * height), (x0, w_s_y + y * height))
-        # вертикальные линии
-        for i in range(1, hours + 1):
-            self.scene.addPolygon(
-                QPolygonF(
-                    [
-                        QPointF(i * x, y0),
-                        QPointF(i * x, w_s_y),
-                    ]),
-            )
-            if i < hours:
+        if self.rmap.visible:
+            self.scene.clear()
+            print("popups: ", self.popUps)
+            x = 180
+            y = 50
+            x0 = 50
+            y0 = 50
+            w_s_y = y0
+            hours = self.rmap.end - self.rmap.start + 1
+            # рендерит прямоугольники (пути)
+            for w_id, way in enumerate(self.rmap.ways):
+                height = way[1]
+                name = way[0]
                 self.scene.addPolygon(
                     QPolygonF(
                         [
-                            QPointF(i * x + x // 2, y0),
-                            QPointF(i * x + x // 2, w_s_y),
-                        ]), QPen(Qt.black, 1, Qt.DotLine)
+                            QPointF(x0, w_s_y),
+                            QPointF(x0 + hours * x, w_s_y),
+                            QPointF(x0 + hours * x, w_s_y + y * height),
+                            QPointF(x0, w_s_y + y * height),
+                        ]),
                 )
-            textitem = self.scene.addText(str(self.rmap.start + i - 1) + ":00")
-            textitem.setPos(i * x - 12, 0)
+                # имя пути
+                textitem = self.scene.addText(name)
+                textitem.setPos(x0 + 3, w_s_y + height // 2)
+                try:
+                    elements = self.rmap.elements[w_id]
+                    for el in elements:
+                        # сделать функционал для отрисовки элементов, разных
+                        x_s_el = x0 + x * (el['time_s'].hour - self.rmap.start + 1) + (x // 60) * el['time_s'].minute
+                        x_e_el = x0 + x * (el['time_e'].hour - self.rmap.start + 1) + (x // 60) * el['time_e'].minute
+                        svgWidget = QtSvg.QSvgWidget(self.rmap.el_config[el["uri"]]["svg_main"])
+                        print(self.rmap.el_config[el["uri"]]["svg_main"])
+                        svgWidget.setGeometry(x_s_el, w_s_y, x_e_el - x_s_el, y * height)
+                        # renderer = QtSvg.QSvgRenderer('elements\\anchoring.svg')
+                        self.scene.addWidget(svgWidget)
+                        # textitem = self.scene.addText(el['name'])
+                        # textitem.setPos(x_s_el, w_s_y + (y // 2))
+                        map_len = sum([need_integ[1] for need_integ in self.rmap.ways])
+                        self.scene.addPolygon(
+                            QPolygonF(
+                                [
+                                    QPointF(x_s_el, y0),
+                                    QPointF(x_s_el, y0 + map_len * y),
+                                ]), DashPen(Qt.darkGray, 1)
+                        )
+                        self.scene.addPolygon(
+                            QPolygonF(
+                                [
+                                    QPointF(x_e_el, y0),
+                                    QPointF(x_e_el, y0 + map_len * y),
+                                ]), DashPen(Qt.darkGray, 1)
+                        )
+                except KeyError:
+                    pass
+                w_s_y += height * y
+                # print((x0, w_s_y), (hours * x, w_s_y), (hours * x, w_s_y + y * height), (x0, w_s_y + y * height))
+            # вертикальные линии
+            for i in range(1, hours + 1):
+                self.scene.addPolygon(
+                    QPolygonF(
+                        [
+                            QPointF(x0 + i * x, y0),
+                            QPointF(x0 + i * x, w_s_y),
+                        ]),
+                )
+                if i < hours:
+                    self.scene.addPolygon(
+                        QPolygonF(
+                            [
+                                QPointF(x0 + i * x + x // 2, y0),
+                                QPointF(x0 + i * x + x // 2, w_s_y),
+                            ]), DashPen(Qt.black, 1)
+                    )
+                    # if (self.view.transform().m11() >= 2):
+                    #     self.scene.addPolygon(
+                    #         QPolygonF(
+                    #             [
+                    #                 QPointF(i * x + x // 4, y0),
+                    #                 QPointF(i * x + x // 4, w_s_y),
+                    #             ]), QPen(Qt.black, 1, Qt.DashLine)
+                    #     )
+                    #     self.scene.addPolygon(
+                    #         QPolygonF(
+                    #             [
+                    #                 QPointF(i * x + (x // 4)*3, y0),
+                    #                 QPointF(i * x + (x // 4)*3, w_s_y),
+                    #             ]), QPen(Qt.black, 1, Qt.DashLine)
+                    #     )
+                textitem = self.scene.addText(str(self.rmap.start + i - 1) + ":00")
+                textitem.setPos(x0 + i * x - 12, y0 - 17)
 
     def on_click(self, pos):
         if self.rmap.visible:  # and (len(self.popUps) == 0 or not isinstance(self.popUps[-1], PopUp)):
             x = 180
             y = 50
-            x0 = 0
-            y0 = 17
+            x0 = 50
+            y0 = 50
             w_s_y = y0
             if x > pos[0] > x0:
                 for w_id, way in enumerate(self.rmap.ways):
@@ -309,8 +377,8 @@ class EditorTab(QWidget):
         if self.rmap.visible:
             x = 180
             y = 50
-            x0 = 0
-            y0 = 17
+            x0 = 50
+            y0 = 50
             w_s_y = y0
             for w_id, way in enumerate(self.rmap.ways):
                 if w_s_y + y * way[1] > pos[1] > w_s_y:

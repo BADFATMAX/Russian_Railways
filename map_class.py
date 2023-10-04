@@ -2,7 +2,11 @@ import xml.etree.ElementTree as ET
 from datetime import time
 from datetime import datetime
 from typing import Union
+import os
+import json
 
+ELEMENTS_DIR = 'elements'
+ELCONF_FILE = 'elements.json'
 
 class RailMap:
     def __init__(self, source: Union[str, None] = None):
@@ -11,6 +15,10 @@ class RailMap:
         self.start: Union[int, None] = None
         self.end: Union[int, None] = None
         self.visible = False
+        self.el_config = json.load(open(os.path.join(ELEMENTS_DIR, ELCONF_FILE), encoding='utf-8'))
+        for el_config_i in self.el_config:
+            self.el_config[el_config_i]['svg_main'] = os.path.join(ELEMENTS_DIR, self.el_config[el_config_i]['svg_main'])
+            self.el_config[el_config_i]['svg_label'] = os.path.join(ELEMENTS_DIR, self.el_config[el_config_i]['svg_label'])
         if source is None:
             self.build_default()
         else:
@@ -21,10 +29,10 @@ class RailMap:
                      ["Сигналист", 1], ["Перегон А-Б", 1]]
         self.start = 6
         self.end = 22
-        self.elements.update({self.ways.index(self.ways[1]): [
-            {'name': 'Element 3', 'time_s': time(hour=7, minute=23), 'time_e': time(hour=9, minute=00)}]})
-        self.elements.update({self.ways.index(self.ways[2]): [
-            {'name': 'Element 1', 'time_s': time(hour=6, minute=30), 'time_e': time(hour=7, minute=00)}]})
+        # self.elements.update({self.ways.index(self.ways[1]): [
+        #     {'name': 'Element 3', 'time_s': time(hour=7, minute=23), 'time_e': time(hour=9, minute=00)}]})
+        # self.elements.update({self.ways.index(self.ways[2]): [
+        #     {'name': 'Element 1', 'time_s': time(hour=6, minute=30), 'time_e': time(hour=7, minute=00)}]})
 
     def save(self, name: str):
         root = ET.Element('xml')
@@ -42,7 +50,7 @@ class RailMap:
                 for el in elems:
                     elem_el = ET.Element('element')
                     way_el.append(elem_el)
-                    elem_el.set('name', el['name'])
+                    elem_el.set('uri', el['uri'])
                     elem_el.set('time_s', el['time_s'].strftime("%H:%M"))
                     elem_el.set('time_e', el['time_e'].strftime("%H:%M"))
             except KeyError:
@@ -63,8 +71,11 @@ class RailMap:
             self.ways.append([way.attrib['name'], int(way.attrib['height'])])
             elems = []
             for el in way:
-                elems.append({'name': el.attrib['name'], 'time_s': datetime.strptime(el.attrib['time_s'], "%H:%M"),
-                              'time_e': datetime.strptime(el.attrib['time_e'], "%H:%M")})
+                elems.append({'uri': el.attrib['uri'], 'time_s': datetime.strptime(el.attrib['time_s'], "%H:%M"),
+                              'time_e': datetime.strptime(el.attrib['time_e'], "%H:%M"),
+                              'name': self.el_config[el.attrib['uri']]['name'],
+                              'svg_main': os.path.join(ELEMENTS_DIR, self.el_config[el.attrib['uri']]['svg_main']),
+                              'svg_label': os.path.join(ELEMENTS_DIR, self.el_config[el.attrib['uri']]['svg_label'])})
             if len(elems) > 0:
                 self.elements.update({i: elems})
             i += 1

@@ -1,4 +1,5 @@
-from PyQt5.QtWidgets import QGraphicsScene, QGraphicsSceneDragDropEvent
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QGraphicsScene, QGraphicsSceneDragDropEvent, QApplication
 
 from .draggable import DraggableLabel
 

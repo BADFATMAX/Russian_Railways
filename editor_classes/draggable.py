@@ -11,6 +11,7 @@ class DraggableLabel(QLabel):
         self.parent = parent
         self.setAcceptDrops(True)
         self.text_ : Union[str, None] = None
+        self.uri_: Union[str, None] = None
         self.msg : Union[QLabel, None] = None
         # renderer = QtSvg.QSvgRenderer('elements\\anchoring.svg')
         # self.resize(renderer.defaultSize())

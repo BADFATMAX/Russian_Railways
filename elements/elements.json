@@ -1,0 +1,12 @@
+{
+  "anchoring":{
+    "name": "Закрепление/Раскрепление",
+    "svg_main": "anchoring.svg",
+    "svg_label": "anchoring_label.svg"
+  },
+  "departure": {
+    "name": "Отправление",
+    "svg_main": "departure.svg",
+    "svg_label": "departure_label.svg"
+  }
+}
