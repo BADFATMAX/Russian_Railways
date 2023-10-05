@@ -1,4 +1,9 @@
-import flet as ft
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton
 
-def create_rhythm_game_tab():
-    return ft.Tab(text="Rhythm game", content=ft.Container(content=ft.Text("Rhythm game content")))
+class RhythmGameTab(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.layout = QVBoxLayout()
+        self.pushButton = QPushButton("Rhythm game")
+        self.layout.addWidget(self.pushButton)
+        self.setLayout(self.layout)
