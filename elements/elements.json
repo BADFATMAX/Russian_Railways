@@ -88,5 +88,26 @@
   "svg_main": "arrival_wch.svg",
   "svg_label": "arrival_wch_label.svg",
   "align": "left"
+  },
+
+  "brchange": {
+  "name": "Смена бригад",
+  "svg_main": "brchange.svg",
+  "svg_label": "brchange_label.svg",
+  "align": "center"
+  },
+
+  "snowRem": {
+  "name": "Работа снегоуборочной машины",
+  "svg_main": "snowRem.svg",
+  "svg_label": "snowRem_label.svg",
+  "align": "center"
+  },
+
+  "SOT": {
+  "name": "Сокращенная проба тормозов",
+  "svg_main": "SOT.svg",
+  "svg_label": "SOT_label.svg",
+  "align": "center"
   }
 }
