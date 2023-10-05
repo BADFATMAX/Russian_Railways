@@ -53,6 +53,8 @@ class RailMap:
                     elem_el.set('uri', el['uri'])
                     elem_el.set('time_s', el['time_s'].strftime("%H:%M"))
                     elem_el.set('time_e', el['time_e'].strftime("%H:%M"))
+                    elem_el.set('text', el['text'])
+                    elem_el.set('align', el['align'])
             except KeyError:
                 pass
         file2write = ET.ElementTree()
@@ -75,7 +77,9 @@ class RailMap:
                               'time_e': datetime.strptime(el.attrib['time_e'], "%H:%M"),
                               'name': self.el_config[el.attrib['uri']]['name'],
                               'svg_main': os.path.join(ELEMENTS_DIR, self.el_config[el.attrib['uri']]['svg_main']),
-                              'svg_label': os.path.join(ELEMENTS_DIR, self.el_config[el.attrib['uri']]['svg_label'])})
+                              'svg_label': os.path.join(ELEMENTS_DIR, self.el_config[el.attrib['uri']]['svg_label']),
+                              'text': el.attrib['text'],
+                              'align': el.attrib['align']})
             if len(elems) > 0:
                 self.elements.update({i: elems})
             i += 1

@@ -213,6 +213,7 @@ class PopUpInsertElement(PopUp):
         self.content = {'w_id': w_id, 'element': el}
         self.layout = QVBoxLayout()
         self.setWindowTitle("Поставить элемент")
+        self.edit_line = None
 
         time_edit_layout = QHBoxLayout()
         timeEdit1 = QTimeEdit(QTime.currentTime())
@@ -224,6 +225,10 @@ class PopUpInsertElement(PopUp):
 
         time_edit_layout.addWidget(timeEdit1)
         time_edit_layout.addWidget(timeEdit2)
+
+        edit_line = QLineEdit()
+        edit_line.setMaxLength(15)
+        edit_line.setPlaceholderText("")
 
         buttons = QHBoxLayout()
         send_button = QPushButton("ОК")
@@ -237,6 +242,8 @@ class PopUpInsertElement(PopUp):
         self.layout.addWidget(QLabel(f"Поставить \"{el.text()}\" на \"{self.parent.rmap.ways[w_id][0]}\""))
         self.layout.addLayout(time_edit_layout)
         self.layout.addLayout(buttons)
+        self.layout.addWidget(edit_line)
+        self.edit_line = edit_line
         self.setLayout(self.layout)
         self.adjustSize()
 
@@ -257,6 +264,8 @@ class PopUpEditElement(PopUp):
         self.layout = QVBoxLayout()
         self.setWindowTitle("Изменить элемент")
 
+        self.edit_line = None
+
         time_edit_layout = QHBoxLayout()
         cur_time1 = QTime()
         cur_time1.setHMS(el['time_s'].hour, el['time_s'].minute, 0, 0)
@@ -275,6 +284,11 @@ class PopUpEditElement(PopUp):
         time_edit_layout.addWidget(timeEdit1)
         time_edit_layout.addWidget(timeEdit2)
 
+        edit_line = QLineEdit()
+        edit_line.setMaxLength(15)
+        edit_line.setText(el['text'])
+        edit_line.textChanged.connect(self.changed_text)
+
         buttons = QHBoxLayout()
         send_button = QPushButton("ОК")
         send_button.clicked.connect(self.cancel)
@@ -291,6 +305,8 @@ class PopUpEditElement(PopUp):
         self.layout.addWidget(QLabel(f"Изменить \"{el['name']}({el['time_s'].strftime('%H:%M')}-{el['time_e'].strftime('%H:%M')})\" на \"{self.parent.rmap.ways[w_id][0]}\""))
         self.layout.addLayout(time_edit_layout)
         self.layout.addLayout(buttons)
+        self.edit_line = edit_line
+        self.layout.addWidget(edit_line)
         self.setLayout(self.layout)
         self.adjustSize()
 
@@ -300,6 +316,10 @@ class PopUpEditElement(PopUp):
 
     def edit_time_e(self):
         self.content['element']['time_e'] = time(hour=self.time_edits[1].time().hour(), minute=self.time_edits[1].time().minute())
+        self.parent.draw_map()
+
+    def changed_text(self):
+        self.content['element']['text'] = self.edit_line.text()
         self.parent.draw_map()
 
     def restore(self):

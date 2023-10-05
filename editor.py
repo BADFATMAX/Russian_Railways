@@ -2,15 +2,16 @@ from PyQt5 import QtSvg
 from PyQt5.QtCore import QPointF, QPoint
 from PyQt5.QtCore import QPointF
 from PyQt5.QtCore import Qt, QMimeData
-from PyQt5.QtGui import QDrag, QPixmap, QPainter, QPolygonF, QPen, QBrush, QWheelEvent
+from PyQt5.QtGui import QDrag, QPixmap, QPainter, QPolygonF, QPen, QBrush, QWheelEvent, QFont
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QGraphicsScene, QGraphicsView, \
-    QFileDialog, QGridLayout, QFrame, QApplication
+    QFileDialog, QGridLayout, QFrame, QApplication, QScrollArea
 
 from editor_classes.draggable import DraggableLabel
 from editor_classes.editorscene import EditorScene
 from editor_classes.popup import PopUpInput, PopUp, PopUpEditWay, deleteItemsOfLayout, PopUpInsertElement, \
     PopUpEditElement
 from map_class import RailMap
+import math
 
 from functools import reduce
 
@@ -53,22 +54,22 @@ class EditorTab(QWidget):
         self.popUps = []
         self.rmap = RailMap()
 
-        save_map_button = QPushButton("Save")
+        save_map_button = QPushButton("Сохранить")
         save_map_button.clicked.connect(self.save_map)
-        load_map_button = QPushButton("Load")
+        load_map_button = QPushButton("Загрузить")
         load_map_button.clicked.connect(self.load_map)
-        new_map_button = QPushButton("New")
+        new_map_button = QPushButton("Новый файл")
         new_map_button.clicked.connect(self.new_map)
-        add_row_button = QPushButton("Add Row")
+        add_row_button = QPushButton("Добавить путь")
         add_row_button.clicked.connect(self.add_row)
-        remove_row_button = QPushButton("Remove Row")
-        remove_row_button.clicked.connect(self.remove_row)
+        # remove_row_button = QPushButton("Remove Row")
+        # remove_row_button.clicked.connect(self.remove_row)
 
         self.button_layout.addWidget(save_map_button)
         self.button_layout.addWidget(load_map_button)
         self.button_layout.addWidget(new_map_button)
         self.button_layout.addWidget(add_row_button)
-        self.button_layout.addWidget(remove_row_button)
+        # self.button_layout.addWidget(remove_row_button)
 
         self.layout.addLayout(self.button_layout)
 
@@ -84,14 +85,23 @@ class EditorTab(QWidget):
         layout_bottom = QGridLayout()
         # layout_bottom.setSpacing(1000)
 
-        left = QWidget()
-        left.setFixedWidth(600)
-        left.setStyleSheet("border: 1px solid black;")
-        layout_left = QGridLayout()
-        left.setLayout(layout_left)
-        layout_left.setSpacing(2)
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll_content = QWidget(scroll)
+        scroll.setFixedWidth(600)
+        scroll.setFixedHeight(300)
+        # scroll_content.setFixedHeight(200)
+        # scroll_content.setFixedWidth(600)
+        # left.setFixedWidth(600)
+        # left.setFixedHeight(200)
+        scroll_content.setStyleSheet("border: 1px solid black;")
+        # layout_left = QGridLayout()
+        # scroll_content.setLayout(layout_left)
+        scrollLayout = QGridLayout(scroll_content)
+        scroll_content.setLayout(scrollLayout)
+        scrollLayout.setSpacing(2)
 
-        layout_bottom.addWidget(left, 0, 0, Qt.AlignLeft)
+        layout_bottom.addWidget(scroll, 0, 0, Qt.AlignLeft)
 
         layout_right = QVBoxLayout()
 
@@ -103,28 +113,17 @@ class EditorTab(QWidget):
             element = DraggableLabel(self)
             element.text_ = self.rmap.el_config[el_in_panel]['name']
             element.uri_ = el_in_panel
+            element.align_ = self.rmap.el_config[el_in_panel]['align']
             # element.setFixedSize(100, 67)
             pixmap = QPixmap(self.rmap.el_config[el_in_panel]['svg_label'])
             # pixmap = pixmap.scaled(100, 67)
             element.setPixmap(pixmap)
             self.elements.append(element)
-            layout_left.addWidget(element, i / 3, i % 3, Qt.AlignLeft)
-
-        # for i in range(5):
-        #     element = DraggableLabel(self)
-        #     element.text_ = f"Element {i + 1}"
-        #     element.setFixedSize(100, 67)
-        #     element.setStyleSheet("border: 1px solid black;")
-        #
-        #     pixmap = QPixmap('elements\\anchoring_label.svg')
-        #     pixmap = pixmap.scaled(100, 67)
-        #     element.setPixmap(pixmap)
-        #
-        #     self.elements.append(element)
-        #     # self.layout.addWidget(element)
-        #     layout_left.addWidget(element, i / 3, i % 3, Qt.AlignLeft)
+            scrollLayout.addWidget(element, i / 3, i % 3, Qt.AlignLeft)
+            # scrollLayout.addWidget(element)
 
         self.layout.addLayout(layout_bottom)
+        scroll.setWidget(scroll_content)
         self.setLayout(self.layout)
 
     def save_map(self):
@@ -165,18 +164,18 @@ class EditorTab(QWidget):
             self.popUps.append(msg)
             print(self.rmap.elements.keys())
 
-    def remove_row(self):
-        if self.rmap.visible:
-            if len(self.rmap.ways) > 0:
-                # index = self.rmap.ways.index(self.rmap.ways[-1])
-                # print(index)
-                try:
-                    self.rmap.elements.pop(-1)
-                except KeyError:
-                    pass
-                self.rmap.ways.pop()
-                self.draw_map()
-                print(self.rmap.elements.keys())
+    # def remove_row(self):
+    #     if self.rmap.visible:
+    #         if len(self.rmap.ways) > 0:
+    #             # index = self.rmap.ways.index(self.rmap.ways[-1])
+    #             # print(index)
+    #             try:
+    #                 self.rmap.elements.pop(-1)
+    #             except KeyError:
+    #                 pass
+    #             self.rmap.ways.pop()
+    #             self.draw_map()
+    #             print(self.rmap.elements.keys())
 
     def pop_up_handle(self, popUpObj: PopUp):
         if popUpObj.op == "add_row":
@@ -196,7 +195,9 @@ class EditorTab(QWidget):
         elif popUpObj.op == "element_insert":
             new_el = {'uri': popUpObj.content['element'].uri_, 'name': popUpObj.content['element'].text(),
                       'time_s': popUpObj.content['time_s'],
-                      'time_e': popUpObj.content['time_e']}
+                      'time_e': popUpObj.content['time_e'],
+                      'align': popUpObj.content['element'].align_,
+                      'text': popUpObj.edit_line.text()}
             i = popUpObj.content['w_id']
             try:
                 way_list = self.rmap.elements[i]
@@ -207,6 +208,11 @@ class EditorTab(QWidget):
             self.popUps.remove(popUpObj)
         except ValueError:
             print("No such popup in list!")
+        # print(self.layout.count())
+        self.children()[-1].setParent(None)
+        print("children: ", len(self.children()))
+        for child in self.children():
+            print(child, " children: ", len(child.children()))
         self.draw_map()
 
     def pop_up_temp_handle(self, popUpObj: PopUp):
@@ -281,12 +287,30 @@ class EditorTab(QWidget):
                         x_s_el = x0 + x * (el['time_s'].hour - self.rmap.start + 1) + (x // 60) * el['time_s'].minute
                         x_e_el = x0 + x * (el['time_e'].hour - self.rmap.start + 1) + (x // 60) * el['time_e'].minute
                         svgWidget = QtSvg.QSvgWidget(self.rmap.el_config[el["uri"]]["svg_main"])
-                        print(self.rmap.el_config[el["uri"]]["svg_main"])
-                        svgWidget.setGeometry(x_s_el, w_s_y, x_e_el - x_s_el, y * height)
+                        # print(self.rmap.el_config[el["uri"]]["svg_main"])
+                        additional = (height * y) // 4
+                        svgWidget.setGeometry(x_s_el, w_s_y + additional, x_e_el - x_s_el, (y * height) - 2 * additional)
                         # renderer = QtSvg.QSvgRenderer('elements\\anchoring.svg')
                         self.scene.addWidget(svgWidget)
-                        # textitem = self.scene.addText(el['name'])
-                        # textitem.setPos(x_s_el, w_s_y + (y // 2))
+                        textitem = self.scene.addText(el['text'])
+                        text_y = w_s_y + y // 2 - textitem.boundingRect().height() // 2
+                        if (el['align'] == 'center'):
+                            text_x = x_s_el + (x_e_el - x_s_el) // 2 - textitem.boundingRect().width() // 2
+                        elif (el['align'] == 'right'):
+                            text_x = x_e_el
+                        elif (el['align'] == 'left'):
+                            text_x = x_s_el - textitem.boundingRect().width()
+                        elif (el['align'] == 'right45'):
+                            try:
+                                angle = math.atan(((y * height) - 2 * additional) / (x_e_el - x_s_el))
+                                textitem.setRotation(math.degrees(angle))
+                                text_x = x_s_el + (x_e_el - x_s_el) // 2 - (textitem.boundingRect().width() // 2) * math.cos(angle) + (textitem.boundingRect().height() * 0.7)
+                                text_y = w_s_y + (y // 2) - (textitem.boundingRect().width() // 2)* math.sin(angle) - textitem.boundingRect().height() * 0.7
+                            except Exception:
+                                text_x = x_s_el
+                        else:
+                            text_x = x_s_el
+                        textitem.setPos(text_x, text_y)
                         map_len = sum([need_integ[1] for need_integ in self.rmap.ways])
                         self.scene.addPolygon(
                             QPolygonF(
@@ -348,7 +372,7 @@ class EditorTab(QWidget):
             x0 = 50
             y0 = 50
             w_s_y = y0
-            if x > pos[0] > x0:
+            if x + x0 > pos[0] > x0:
                 for w_id, way in enumerate(self.rmap.ways):
                     if w_s_y + y * way[1] > pos[1] > w_s_y:
                         print(way[0])

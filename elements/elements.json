@@ -2,11 +2,91 @@
   "anchoring":{
     "name": "Закрепление/Раскрепление",
     "svg_main": "anchoring.svg",
-    "svg_label": "anchoring_label.svg"
+    "svg_label": "anchoring_label.svg",
+    "align": "center"
   },
+
+    "uncoupling": {
+    "name": "Отцепка/прицепка поездного локомотива",
+    "svg_main": "uncoupling.svg",
+    "svg_label": "uncoupling_label.svg",
+    "align": "center"
+  },
+
   "departure": {
     "name": "Отправление",
     "svg_main": "departure.svg",
-    "svg_label": "departure_label.svg"
+    "svg_label": "departure_label.svg",
+    "align": "right"
+  },
+
+  "departure_pass": {
+    "name": "Отправление пассажирского поезда",
+    "svg_main": "departure_pass.svg",
+    "svg_label": "departure_pass_label.svg",
+    "align": "right"
+  },
+
+  "departure_hoz": {
+    "name": "Отправление хозяйственного поезда",
+    "svg_main": "departure_hoz.svg",
+    "svg_label": "departure_hoz_label.svg",
+    "align": "right"
+  },
+
+  "to": {
+    "name": "Техническое обслуживание вагонов",
+    "svg_main": "to.svg",
+    "svg_label": "to_label.svg",
+    "align": "center"
+  },
+
+  "arrMark": {
+    "name": "Метка прибытия/отправления",
+    "svg_main": "arrMark.svg",
+    "svg_label": "arrMark_label.svg",
+    "align": "right45"
+  },
+
+  "arrPassMark": {
+    "name": "Метка прибытия/отправления пассажирского поезда",
+    "svg_main": "arrPassMark.svg",
+    "svg_label": "arrPassMark_label.svg",
+    "align": "right45"
+  },
+
+  "arrHozMark": {
+  "name": "Метка прибытия/отправления хозяйственного поезда",
+  "svg_main": "arrHozMark.svg",
+  "svg_label": "arrHozMark_label.svg",
+  "align": "right45"
+  },
+
+  "arrival": {
+  "name": "Прибытие",
+  "svg_main": "arrival.svg",
+  "svg_label": "arrival_label.svg",
+  "align": "left"
+  },
+
+  "arrival_pass": {
+  "name": "Прибытие пассажирского поезда",
+  "svg_main": "arrival_pass.svg",
+  "svg_label": "arrival_pass_label.svg",
+  "align": "left"
+  },
+
+  "arrival_hoz": {
+  "name": "Прибытие хозяйственного поезда",
+  "svg_main": "arrival_hoz.svg",
+  "svg_label": "arrival_hoz_label.svg",
+  "align": "left"
+  },
+
+  "arrival_wch": {
+  "name": "Прибытие, необходима смена локомотива",
+  "svg_main": "arrival_wch.svg",
+  "svg_label": "arrival_wch_label.svg",
+  "align": "left"
   }
 }
