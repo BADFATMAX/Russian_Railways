@@ -1,8 +1,3 @@
-# Piano Tiles
-
-# Author : Prajjwal Pathak (pyguru)
-# Date : Thursday, 30 November, 2021
-
 import json
 import random
 import pygame
@@ -11,8 +6,8 @@ from threading import Thread
 from objects import Tile, Square, Text, Button, Counter
 
 pygame.init()
-SCREEN = WIDTH, HEIGHT = 288, 512
-TILE_WIDTH = WIDTH // 4
+SCREEN = WIDTH, HEIGHT = 504, 512
+TILE_WIDTH = 288 // 4
 TILE_HEIGHT = 130
 
 info = pygame.display.Info()
@@ -27,6 +22,8 @@ else:
 clock = pygame.time.Clock()
 FPS = 30
 
+SCREEN = WIDTH, HEIGHT = 288, 512
+
 # COLORS *********************************************************************
 
 WHITE = (255, 255, 255)
@@ -35,14 +32,13 @@ BLUE = (30, 144, 255)
 
 # IMAGES *********************************************************************
 
-bg_img = pygame.image.load('Assets/bg.png')
+bg_img = pygame.image.load('Assets/bg2.jpg')
+bg_img2 = pygame.image.load('Assets/bg.jpg')
 bg_img = pygame.transform.scale(bg_img, (WIDTH, HEIGHT))
+bg_img2 = pygame.transform.scale(bg_img2, (216, 512))
 
 piano_img = pygame.image.load('Assets/piano.png')
 piano_img = pygame.transform.scale(piano_img, (212, 212))
-
-# title_img = pygame.image.load('Assets/title.png')
-# title_img = pygame.transform.scale(title_img, (200, 50))
 
 start_img = pygame.image.load('Assets/start.png')
 start_img = pygame.transform.scale(start_img, (120, 40))
@@ -51,21 +47,11 @@ start_rect = start_img.get_rect(center=(WIDTH//2, HEIGHT-80))
 overlay = pygame.image.load('Assets/red overlay.png')
 overlay = pygame.transform.scale(overlay, (WIDTH, HEIGHT))
 
-# MUSIC **********************************************************************
-
-buzzer_fx = pygame.mixer.Sound('Sounds/piano-buzzer.mp3')
-
-pygame.mixer.music.load('Sounds/piano-bgmusic.mp3')
-pygame.mixer.music.set_volume(0.8)
-pygame.mixer.music.play(loops=-1)
-
 # FONTS **********************************************************************
 
 score_font = pygame.font.Font('Fonts/Futura condensed.ttf', 32)
 title_font = pygame.font.Font('Fonts/Alternity-8w7J.ttf', 30)
 gameover_font = pygame.font.Font('Fonts/Alternity-8w7J.ttf', 40)
-
-# title_img = title_font.render('Piano Tiles', True, WHITE)
 
 # BUTTONS ********************************************************************
 
@@ -117,6 +103,7 @@ count = 0
 overlay_index = 0
 
 running = True
+pic = None
 while running:
 	pos = None
 
@@ -127,6 +114,9 @@ while running:
 			counter = 0
 
 	win.blit(bg_img, (0,0))
+	win.blit(bg_img2, (288, 0))
+	if pic:
+		win.blit(surface, rect)
 	square_group.update()
 
 	for event in pygame.event.get():
@@ -169,10 +159,17 @@ while running:
 				if pos:
 					if tile.rect.collidepoint(pos):
 						if tile.alive:
+							pic = tile.img
 							tile.alive = False
 							score += 1
 							if score >= high_score:
 								high_score = score
+							
+							surface = pygame.image.load(pic)
+							rect = surface.get_rect()
+							rect.x = 288+72
+							rect.y = 191
+							
 							
 
 							note = notes_list[note_count].strip()
@@ -190,11 +187,11 @@ while running:
 				if tile.rect.bottom >= HEIGHT and tile.alive:
 					if not game_over:
 						tile.color = (255, 0, 0)
-						buzzer_fx.play()
+						# buzzer_fx.play()
 						game_over = True
 
 			if pos:
-				buzzer_fx.play()
+				# buzzer_fx.play()
 				game_over = True
 
 			if len(tile_group) > 0:
@@ -213,7 +210,7 @@ while running:
 			for i in range(4):
 				pygame.draw.line(win, WHITE, (TILE_WIDTH * i, 0), (TILE_WIDTH*i, HEIGHT), 1)
 
-			speed = int(get_speed(score) * (FPS / 1000))
+			speed = int(get_speed(score) * (FPS / 1000)) // 2
 
 			if game_over:
 				speed = 0
