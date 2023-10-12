@@ -1,5 +1,5 @@
 from PyQt5 import QtSvg
-from PyQt5.QtCore import QPointF, QPoint
+from PyQt5.QtCore import QPointF, QPoint, QSize
 from PyQt5.QtCore import QPointF
 from PyQt5.QtCore import Qt, QMimeData
 from PyQt5.QtGui import QDrag, QPixmap, QPainter, QPolygonF, QPen, QBrush, QWheelEvent, QFont
@@ -82,7 +82,7 @@ class EditorTab(QWidget):
 
         self.layout.addWidget(self.view)
 
-        layout_bottom = QGridLayout()
+        layout_bottom = QHBoxLayout()
         # layout_bottom.setSpacing(1000)
 
         scroll = QScrollArea()
@@ -101,11 +101,13 @@ class EditorTab(QWidget):
         scroll_content.setLayout(scrollLayout)
         scrollLayout.setSpacing(2)
 
-        layout_bottom.addWidget(scroll, 0, 0, Qt.AlignLeft)
+        layout_bottom.addWidget(scroll, Qt.AlignLeft)
 
         layout_right = QVBoxLayout()
 
-        layout_bottom.addLayout(layout_right, 0, 2)
+        layout_bottom.addLayout(layout_right, Qt.AlignLeft)
+        layout_bottom.addStretch()
+
         self.info_layout = layout_right
 
         self.elements = []
