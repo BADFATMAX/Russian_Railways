@@ -2,7 +2,7 @@ import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QTabWidget
 from editor import EditorTab
 from history import HistoryTab
-from rhythm_game import RhythmGameTab
+from games_tab import GamesTab
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -12,11 +12,11 @@ class MainWindow(QMainWindow):
 
         editor_tab = EditorTab()
         history_tab = HistoryTab()
-        rhythm_game = RhythmGameTab()
+        rhythm_game = GamesTab(self)
 
         self.tab_widget.addTab(editor_tab, "Editor")
         self.tab_widget.addTab(history_tab, "History")
-        self.tab_widget.addTab(rhythm_game, "Rhythm Game")
+        self.tab_widget.addTab(rhythm_game, "Игры")
 
         self.setCentralWidget(self.tab_widget)
 
