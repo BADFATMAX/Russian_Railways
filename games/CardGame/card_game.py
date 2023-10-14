@@ -8,8 +8,8 @@ from datetime import datetime
 import os
 import glob
 
-from Russian_Railways.games.CardGame.logic import isSolvable, isSolved
-from Russian_Railways.games.CardGame.game_over_screen import GameWon
+from logic import isSolvable, isSolved
+from game_over_screen import GameWon
 
 class Application(tk.Frame):
 	def __init__(self, master=None):
