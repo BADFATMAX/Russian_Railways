@@ -4,6 +4,7 @@ from editor import EditorTab
 from history import HistoryTab
 from games_tab import GamesTab
 from documentation import DocumentationTab
+from leaderboard import LeaderboardTab 
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -15,14 +16,16 @@ class MainWindow(QMainWindow):
         history_tab = HistoryTab()
         rhythm_game = GamesTab(self)
         docs_tab = DocumentationTab()
+        leaderboard_tab = LeaderboardTab() 
 
         self.tab_widget.addTab(editor_tab, "Editor")
         self.tab_widget.addTab(history_tab, "History")
         self.tab_widget.addTab(rhythm_game, "Игры")
         self.tab_widget.addTab(docs_tab, "Docs")
+        self.tab_widget.addTab(leaderboard_tab, "Leaderboard")
 
         self.setCentralWidget(self.tab_widget)
-
+        
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     window = MainWindow()

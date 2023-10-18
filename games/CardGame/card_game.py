@@ -30,6 +30,9 @@ class Application(tk.Frame):
 		self.imgDict = {}
 		self.solDict = {}
 
+		self.bestScore = float('inf')  # Initialize best score to infinity
+		self.lastScore = None  # Initialize last score to None
+
 		for directory in os.listdir(os.path.join(DIRNAME, 'images')):
 			if directory.startswith('rail_map_'):
 				img_files = glob.glob(os.path.join(DIRNAME, f'images/{directory}/img*.png'))
@@ -158,6 +161,13 @@ class Application(tk.Frame):
 			messagebox.showerror("Wrong Order", "Sorry, the order is incorrect. Please try again.")
 			self.new_game()
 
+	def write_scores_to_file(self):
+		score_path = "..\\Russian_Railways\\gameScore\\"
+		with open(score_path + "cardLast.txt", "w") as file:
+			file.write(str(self.lastScore))
+		with open(score_path + "cardBest.txt", "w") as file:
+			file.write(str(self.bestScore))
+
 	def click(self, pos):
 		if self.array[pos] == self.current:
 			self.gridCells[pos].grid_forget()
@@ -169,6 +179,10 @@ class Application(tk.Frame):
 				self.timer_id = self.after(1000, self.update_timer)
 			if self.current == 17:
 				messagebox.showinfo("Congratulations", "You got the correct order!")
+				self.lastScore = self.numMoves  # Update last score
+				if self.numMoves < self.bestScore:  # Update best score if necessary
+					self.bestScore = self.numMoves
+				self.write_scores_to_file()
 		else:
 			messagebox.showerror("Wrong Order", "Sorry, the order is incorrect. Please try again.")
 			self.new_game()

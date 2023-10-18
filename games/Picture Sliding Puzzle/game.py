@@ -27,6 +27,9 @@ class Application(tk.Frame):
 		self.imgDict = {}
 		self.solDict = {}
 
+		self.last_score_file = os.path.join("../Russian_Railways/gameScore", "15Last.txt")
+		self.best_score_file = os.path.join("../Russian_Railways/gameScore", "15Best.txt")
+
 		for directory in os.listdir(os.path.join(DIRNAME,'images')):
 			if directory.startswith('rail_map_'):
 				img_files = glob.glob(os.path.join(DIRNAME,f'images/{directory}/img*.png'))
@@ -189,6 +192,8 @@ class Application(tk.Frame):
 		self.update_moves()
 
 		if isSolved(self.array):
+			self.save_last_score()
+			self.save_best_score()
 			GameWon(self.master, self.numMoves, self.new_game)
 
 	def update_state(self):
@@ -223,6 +228,22 @@ class Application(tk.Frame):
 		self.body.grid()
 		self.reset_btn.config(state=tk.NORMAL)
 		self.hint_btn.config(state=tk.NORMAL)
+
+	def save_last_score(self):
+		with open(self.last_score_file, 'w') as file:
+			file.write(str(self.numMoves))
+
+	def save_best_score(self):
+		try:
+			with open(self.best_score_file, 'r') as file:
+				best_score = int(file.read())
+		except FileNotFoundError:
+			best_score = None
+
+		if best_score is None or self.numMoves < best_score:
+			with open(self.best_score_file, 'w') as file:
+				file.write(str(self.numMoves))
+
 
 
 if __name__ == '__main__':
