@@ -110,19 +110,10 @@ class Application(tk.Frame):
 
 	def create_board(self, im_type):
 		self.array = [i for i in range(1, 17)]
-		#random.shuffle(self.array)
+		random.shuffle(self.array)
 
-		img_directory = os.path.join(DIRNAME, f'images/{im_type}')  # Adjust the path to your image directories
-
-		img_list = []  # Create an empty list to store images
-
-		# Load images from "img1.png" to "img16.png" in the specified directory
-		for i in range(1, 17):
-			img_path = f'{img_directory}/img{i}.png'
-			img = PhotoImage(file=img_path)
-			img_list.append(img)
-
-		self.imgMatrix = img_list  # Assign the image list to imgMatrix
+		img_list = self.imgDict[im_type]
+		self.imgMatrix = [img_list[index - 1] for index in self.array]
 
 		for index, img in enumerate(self.imgMatrix):
 			frame = tk.Frame(self.body, width=150, height=100)
