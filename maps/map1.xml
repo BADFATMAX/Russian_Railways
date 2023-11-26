@@ -1,0 +1,2 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<xml><table start="6" end="22"><way name="Перегон Ш-А" height="1" /><way name="1 путь" height="1" /><way name="2 путь" height="1"><element uri="arrival_pass" time_s="22:00" time_e="18:01" text="" align="left" /><element uri="arrival_pass" time_s="09:00" time_e="10:00" text="" align="left" /></way><way name="ТО локомотива" height="1" /><way name="Бригада ПТО" height="1" /><way name="Сигналист" height="1" /><way name="Перегон А-Б" height="1" /></table></xml>
