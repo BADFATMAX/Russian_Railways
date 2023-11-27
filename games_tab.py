@@ -14,6 +14,25 @@ class GamesTab(QWidget):
         self.pushButton = QPushButton("CardGame")
         self.pushButton2 = QPushButton("SlidingGame")
         self.pushButton3 = QPushButton("PianoGame")
+
+        button_style = """
+            QPushButton {
+                background-color: red;
+                border-style: outset;
+                border-width: 2px;
+                border-radius: 20px;
+                border-color: beige;
+                font-weight: bold;
+                font-size: 22px;
+                min-width: 100px;
+                min-height: 50px;
+            }
+            """
+
+        self.pushButton.setStyleSheet(button_style)
+        self.pushButton2.setStyleSheet(button_style)
+        self.pushButton3.setStyleSheet(button_style)
+
         self.pushButton.clicked.connect(self.cardgame)
         self.pushButton2.clicked.connect(self.slidinggame)
         self.pushButton3.clicked.connect(self.pianogame)
@@ -23,7 +42,7 @@ class GamesTab(QWidget):
         buttonLayout.addWidget(self.pushButton3)
         self.layout.addLayout(buttonLayout)
         self.setLayout(self.layout)
-        self.setStyleSheet("background-color: red;")
+        self.setStyleSheet("background-color: white;")
 
         # Add pictures below the buttons
         self.pictureLayout = QHBoxLayout()

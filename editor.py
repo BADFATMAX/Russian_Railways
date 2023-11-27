@@ -54,14 +54,44 @@ class EditorTab(QWidget):
         self.popUps = []
         self.rmap = RailMap()
 
+        button_style = """
+       QPushButton {
+           background-color: red;
+           border-style: outset;
+           border-width: 2px;
+           border-radius: 20px;
+           border-color: beige;
+           font-weight: bold;
+           font-size: 22px;
+           min-width: 100px;
+           min-height: 40px;
+       }
+       """
+
         save_map_button = QPushButton("Сохранить")
+        save_map_button.setStyleSheet(button_style)
         save_map_button.clicked.connect(self.save_map)
+
         load_map_button = QPushButton("Загрузить")
+        load_map_button.setStyleSheet(button_style)
         load_map_button.clicked.connect(self.load_map)
+
         new_map_button = QPushButton("Новый файл")
+        new_map_button.setStyleSheet(button_style)
         new_map_button.clicked.connect(self.new_map)
+
         add_row_button = QPushButton("Добавить путь")
+        add_row_button.setStyleSheet(button_style)
         add_row_button.clicked.connect(self.add_row)
+
+        # save_map_button = QPushButton("Сохранить")
+        # save_map_button.clicked.connect(self.save_map)
+        # load_map_button = QPushButton("Загрузить")
+        # load_map_button.clicked.connect(self.load_map)
+        # new_map_button = QPushButton("Новый файл")
+        # new_map_button.clicked.connect(self.new_map)
+        # add_row_button = QPushButton("Добавить путь")
+        # add_row_button.clicked.connect(self.add_row)
         # remove_row_button = QPushButton("Remove Row")
         # remove_row_button.clicked.connect(self.remove_row)
 

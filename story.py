@@ -1,6 +1,8 @@
 
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel, QHBoxLayout
 from PyQt5.QtGui import QPixmap, QFont
+from PyQt5.QtCore import Qt
+
 
 class StoryTab(QWidget):
     def __init__(self):
@@ -8,12 +10,22 @@ class StoryTab(QWidget):
         self.layout = QVBoxLayout()
 
         # Add a QLabel for the story text about the train at the top of the window
-        storyLabel = QLabel("<font size=40><b>Тууу туу, на ваши плечи легло ответственное задание - переправить уголь из Кузбасса в Камбоджу!</b></font>")
-        storyLabels = QLabel("<font size=40><b>Чтож, говорят вы спец.., надеемся для вас не составит труда пройти интересные задания на вашем пути! Удачи!</b></font>")
+        storyLabel = QLabel(
+            "<font size=40><b>Тууу туу, на ваши плечи легло ответственное задание - переправить уголь из Кузбасса в Камбоджу!</b></font>")
+        storyLabels = QLabel(
+            "<font size=40><b>Чтож, говорят вы спец.., надеемся для вас не составит труда пройти интересные задания на вашем пути! Удачи!</b></font>")
         storyLabel.setFont(QFont("Arial", 6, QFont.Bold))
-        storyLabels.setFont(QFont("Arial", 6, QFont.Bold))  # Set the font to bold
+        storyLabels.setFont(QFont("Arial", 6, QFont.Bold)
+                            )  # Set the font to bold
         self.layout.addWidget(storyLabel)
         self.layout.addWidget(storyLabels)
+
+        # Add a QLabel for the level text at the top of the window
+        levelLabel = QLabel("LEVEL 1")
+        levelLabel.setFont(QFont("Arial", 60, QFont.Bold)) # Set the font to bold and large
+        levelLabel.setStyleSheet("color: red;") # Set the text color to red
+        levelLabel.setAlignment(Qt.AlignRight) # Align the text to the right
+        self.layout.addWidget(levelLabel)
 
         # Create a QHBoxLayout for the picture and the buttons
         pictureAndButtonsLayout = QHBoxLayout()
