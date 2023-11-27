@@ -38,6 +38,8 @@ class PopUp(QDialog):
         if not self.exit_flag:
             self.cancel()
 
+# class PopUpLogin(PopUp)
+
 
 class PopUpInput(PopUp):
     def __init__(self, parent, op):
