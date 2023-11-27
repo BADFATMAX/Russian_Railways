@@ -31,15 +31,18 @@ class MainWindow(QMainWindow):
 
         self.setCentralWidget(self.tab_widget)
         
-        msg = popup.PopUp(self, "login")
+        msg = popup.PopUpLogin(self, "login")
         msg.show()
         # self.popUps.append(msg)
     
-    def pop_up_handle(self, popUpObj: popup.PopUp):
-        self.children()[-1].setParent(None)
-        print("children: ", len(self.children()))
-        for child in self.children():
-            print(child, " children: ", len(child.children()))
+    def pop_up_handle(self, popUpObj: popup.PopUpLogin):
+        if popUpObj.allow == False:
+            self.close()
+        else:
+            self.children()[-1].setParent(None)
+            print("children: ", len(self.children()))
+            for child in self.children():
+                print(child, " children: ", len(child.children()))
 
         
 if __name__ == '__main__':

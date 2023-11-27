@@ -5,6 +5,8 @@ from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLineEdit, QPushB
 from datetime import time
 
 from .draggable import DraggableLabel
+import os
+import json
 
 
 def deleteItemsOfLayout(layout):
@@ -38,7 +40,102 @@ class PopUp(QDialog):
         if not self.exit_flag:
             self.cancel()
 
-# class PopUpLogin(PopUp)
+
+class PopUpMsg(PopUp):
+    def __init__(self, parent, op):
+        # super(PopUpInput, self).__init__(parent)
+        super().__init__(parent, op)
+        self.layout = QVBoxLayout()
+        self.setWindowTitle("Сообщение")
+        label = QLabel(op)
+        self.layout.addWidget(label)
+        ok_button = QPushButton("ОК")
+        ok_button.clicked.connect(self.cancel)
+
+        self.layout.addWidget(ok_button)
+        self.setLayout(self.layout)
+
+
+class PopUpLogin(PopUp):
+    def __init__(self, parent, op):
+        # super(PopUpInput, self).__init__(parent)
+        super().__init__(parent, op)
+
+        self.path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "auth.json")
+        self.layout = QVBoxLayout()
+        self.allow = False
+        self.setWindowTitle("Авторизация")
+
+        button_layout = QHBoxLayout()
+        cancel_button = QPushButton("Отмена")
+        cancel_button.clicked.connect(self.cancel)
+        button_layout.addWidget(cancel_button)
+
+        send_button = QPushButton("ОК")
+        send_button.clicked.connect(self.send)
+        button_layout.addWidget(send_button)
+
+        edit_line_login = QLineEdit()
+        edit_line_login.setMaxLength(15)
+        edit_line_login.setPlaceholderText("Логин")
+        self.edit_login = edit_line_login
+
+        edit_line_password = QLineEdit()
+        edit_line_password.setMaxLength(15)
+        edit_line_password.setPlaceholderText("Пароль")
+        edit_line_password.setEchoMode(QLineEdit.Password)
+        self.edit_password = edit_line_password
+
+        self.layout.addWidget(edit_line_login)
+        self.layout.addWidget(edit_line_password)
+
+        self.layout.addLayout(button_layout)
+        self.setLayout(self.layout)
+
+
+
+    def pop_up_handle(self, obj: PopUp):
+        self.children()[-1].setParent(None)
+        print("children: ", len(self.children()))
+        for child in self.children():
+            print(child, " children: ", len(child.children()))
+
+    def hash_pass(self):
+        if self.edit_password is None:
+            return None
+        hs = 5381
+        for c in self.edit_password.text():
+            hs = ((hs << 5) + hs) + ord(c[0])
+        return hs
+
+
+    def send(self):
+        if self.edit_login.text().__len__() <= 0 \
+                or self.edit_password.text().__len__() <= 0:
+            msg = PopUpMsg(self, "Неверный логин или пароль!")
+            msg.show()
+        else:
+            with open(file=self.path) as fp:
+                dat = json.load(fp)
+                try:
+                    hash_res = dat[self.edit_login.text()]
+                except Exception:
+                    hash_res = None
+                print(self.edit_password.text())
+                print(self.hash_pass())
+                if hash_res is not None and str(self.hash_pass()) == hash_res:
+                    self.allow = True
+                    self.close()
+                else:
+                    msg = PopUpMsg(self, "Неверный логин или пароль!")
+                    msg.show()
+        # if len(self.edit_line.text()) > 0:
+        #     self.exit_flag = True
+        #     self.content = {'new name': self.edit_line.text()}
+        #     self.parent.pop_up_handle(self)
+        #     self.close()
+        # else:
+        #     self.edit_line.setText("Название пути")
 
 
 class PopUpInput(PopUp):
@@ -257,8 +354,9 @@ class PopUpInsertElement(PopUp):
         self.parent.pop_up_handle(self)
         self.close()
 
+
 class PopUpEditElement(PopUp):
-    def __init__(self, parent, op, w_id:int, el:dict):
+    def __init__(self, parent, op, w_id: int, el: dict):
         # super(PopUpInput, self).__init__(parent)
         super().__init__(parent, op)
 
@@ -304,7 +402,8 @@ class PopUpEditElement(PopUp):
         cancel_button.clicked.connect(self.restore)
         buttons.addWidget(cancel_button)
 
-        self.layout.addWidget(QLabel(f"Изменить \"{el['name']}({el['time_s'].strftime('%H:%M')}-{el['time_e'].strftime('%H:%M')})\" на \"{self.parent.rmap.ways[w_id][0]}\""))
+        self.layout.addWidget(QLabel(
+            f"Изменить \"{el['name']}({el['time_s'].strftime('%H:%M')}-{el['time_e'].strftime('%H:%M')})\" на \"{self.parent.rmap.ways[w_id][0]}\""))
         self.layout.addLayout(time_edit_layout)
         self.layout.addLayout(buttons)
         self.edit_line = edit_line
@@ -313,11 +412,13 @@ class PopUpEditElement(PopUp):
         self.adjustSize()
 
     def edit_time_s(self):
-        self.content['element']['time_s'] = time(hour=self.time_edits[0].time().hour(), minute=self.time_edits[0].time().minute())
+        self.content['element']['time_s'] = time(hour=self.time_edits[0].time().hour(),
+                                                 minute=self.time_edits[0].time().minute())
         self.parent.draw_map()
 
     def edit_time_e(self):
-        self.content['element']['time_e'] = time(hour=self.time_edits[1].time().hour(), minute=self.time_edits[1].time().minute())
+        self.content['element']['time_e'] = time(hour=self.time_edits[1].time().hour(),
+                                                 minute=self.time_edits[1].time().minute())
         self.parent.draw_map()
 
     def changed_text(self):
