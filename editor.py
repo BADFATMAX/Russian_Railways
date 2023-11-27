@@ -84,6 +84,11 @@ class EditorTab(QWidget):
         add_row_button.setStyleSheet(button_style)
         add_row_button.clicked.connect(self.add_row)
 
+        remove_row_button = QPushButton("Убрать путь")
+        remove_row_button.setStyleSheet(button_style)
+        remove_row_button.clicked.connect(self.remove_row)
+        
+
         # save_map_button = QPushButton("Сохранить")
         # save_map_button.clicked.connect(self.save_map)
         # load_map_button = QPushButton("Загрузить")
@@ -99,7 +104,7 @@ class EditorTab(QWidget):
         self.button_layout.addWidget(load_map_button)
         self.button_layout.addWidget(new_map_button)
         self.button_layout.addWidget(add_row_button)
-        # self.button_layout.addWidget(remove_row_button)
+        self.button_layout.addWidget(remove_row_button)
 
         self.layout.addLayout(self.button_layout)
 
@@ -196,18 +201,18 @@ class EditorTab(QWidget):
             self.popUps.append(msg)
             print(self.rmap.elements.keys())
 
-    # def remove_row(self):
-    #     if self.rmap.visible:
-    #         if len(self.rmap.ways) > 0:
-    #             # index = self.rmap.ways.index(self.rmap.ways[-1])
-    #             # print(index)
-    #             try:
-    #                 self.rmap.elements.pop(-1)
-    #             except KeyError:
-    #                 pass
-    #             self.rmap.ways.pop()
-    #             self.draw_map()
-    #             print(self.rmap.elements.keys())
+    def remove_row(self):
+        if self.rmap.visible:
+            if len(self.rmap.ways) > 0:
+                # index = self.rmap.ways.index(self.rmap.ways[-1])
+                # print(index)
+                try:
+                    self.rmap.elements.pop(-1)
+                except KeyError:
+                    pass
+                self.rmap.ways.pop()
+                self.draw_map()
+                print(self.rmap.elements.keys())
 
     def pop_up_handle(self, popUpObj: PopUp):
         if popUpObj.op == "add_row":
