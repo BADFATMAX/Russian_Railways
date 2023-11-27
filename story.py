@@ -21,7 +21,7 @@ class StoryTab(QWidget):
         self.layout.addWidget(storyLabels)
 
         # Add a QLabel for the level text at the top of the window
-        levelLabel = QLabel("LEVEL 1")
+        levelLabel = QLabel("УРОВЕНЬ №1")
         levelLabel.setFont(QFont("Arial", 60, QFont.Bold)) # Set the font to bold and large
         levelLabel.setStyleSheet("color: red;") # Set the text color to red
         levelLabel.setAlignment(Qt.AlignRight) # Align the text to the right
