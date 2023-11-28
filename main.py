@@ -13,7 +13,7 @@ from editor_classes import popup
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("PyQT Tabs")
+        self.setWindowTitle("Приложение")
         self.tab_widget = QTabWidget()
 
         editor_tab = EditorTab()
