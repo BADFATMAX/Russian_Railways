@@ -67,6 +67,9 @@ class EditorTab(QWidget):
            min-height: 40px;
            color:white;
        }
+       QPushButton:hover {
+        background-color: #B22222;
+       }
        """
 
         save_map_button = QPushButton("Сохранить")

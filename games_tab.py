@@ -28,6 +28,9 @@ class GamesTab(QWidget):
                 min-height: 50px;
                 color: white;
             }
+            QPushButton:hover {
+                background-color: #B22222;
+            }
             """
 
         self.pushButton.setStyleSheet(button_style)
