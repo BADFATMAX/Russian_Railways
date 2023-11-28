@@ -22,7 +22,10 @@ class RailMap:
         if source is None:
             self.build_default()
         else:
-            self.load(source)
+            try:
+                self.load(source)
+            except Exception:
+                self.build_default()
 
     def build_default(self):
         self.ways = [['Перегон Ш-А', 1], ["1 путь", 1], ["2 путь", 1], ["ТО локомотива", 1], ["Бригада ПТО", 1],
