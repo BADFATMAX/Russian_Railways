@@ -34,8 +34,8 @@ class MainWindow(QMainWindow):
 
         self.setCentralWidget(self.tab_widget)
         
-        # msg = popup.PopUpLogin(self, "login")
-        # msg.show()
+        msg = popup.PopUpLogin(self, "login")
+        msg.show()
         # self.popUps.append(msg)
     
     def pop_up_handle(self, popUpObj: popup.PopUpLogin):

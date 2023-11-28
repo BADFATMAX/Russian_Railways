@@ -67,13 +67,14 @@ class PopUpLogin(PopUp):
         self.setWindowTitle("Авторизация")
 
         button_layout = QHBoxLayout()
+        send_button = QPushButton("ОК")
+        send_button.clicked.connect(self.send)
+        button_layout.addWidget(send_button)
         cancel_button = QPushButton("Отмена")
         cancel_button.clicked.connect(self.cancel)
         button_layout.addWidget(cancel_button)
 
-        send_button = QPushButton("ОК")
-        send_button.clicked.connect(self.send)
-        button_layout.addWidget(send_button)
+
 
         edit_line_login = QLineEdit()
         edit_line_login.setMaxLength(15)
