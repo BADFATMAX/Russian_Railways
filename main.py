@@ -24,7 +24,7 @@ class MainWindow(QMainWindow):
         docs_tab = DocumentationTab()
         leaderboard_tab = LeaderboardTab() 
 
-        admin_tab = AdminTab()
+
 
         self.tab_widget.addTab(editor_tab, "Editor")
         self.tab_widget.addTab(history_tab, "История Карт")
@@ -33,7 +33,6 @@ class MainWindow(QMainWindow):
         self.tab_widget.addTab(rhythm_game, "Игры")
         self.tab_widget.addTab(docs_tab, "Документация")
         self.tab_widget.addTab(leaderboard_tab, "Статистика")
-        self.tab_widget.addTab(admin_tab, "Админ")
 
         self.setCentralWidget(self.tab_widget)
         
@@ -42,6 +41,9 @@ class MainWindow(QMainWindow):
         # self.popUps.append(msg)
     
     def pop_up_handle(self, popUpObj: popup.PopUpLogin):
+        if popUpObj.admin:
+            admin_tab = AdminTab()
+            self.tab_widget.addTab(admin_tab, "Админ")
         if popUpObj.allow == False:
             self.close()
         else:

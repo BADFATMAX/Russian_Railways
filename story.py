@@ -3,10 +3,17 @@ from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel, QHBoxLayo
 from PyQt5.QtGui import QPixmap, QFont
 from PyQt5.QtCore import Qt
 
+class StoryButton(QPushButton):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.lev_id = 0
+    def set_id(self, id):
+        self.lev_id = id
 
 class StoryTab(QWidget):
     def __init__(self):
         super().__init__()
+        self.level = 0
         self.layout = QVBoxLayout()
 
         # Add a QLabel for the story text about the train at the top of the window
@@ -43,8 +50,9 @@ class StoryTab(QWidget):
         # Create 5 buttons with bold font, round corners, and the specified names
         buttons = []
         button_names = ["КУЗБАСС", "КАМЕРУН", "КУБА", "КОРСИКА", "КАМБОДЖА"]
-        for name in button_names:
-            button = QPushButton(name)
+        for b_id, name in enumerate(button_names):
+            button = StoryButton(name)
+            button.set_id(b_id)
             button.setFont(QFont("Arial", 14, QFont.Bold))
             button.setStyleSheet("QPushButton { background-color: gray; border-radius: 20px; width: 100px; height: 60px;}")  # Set the buttons to gray, with round corners, shorter width, and taller height
             buttons.append(button)
@@ -75,7 +83,9 @@ class StoryTab(QWidget):
         self.setLayout(self.layout)
 
     # Enable the next button when the current button is clicked
-    def enable_next_button(self, next_button):
-        next_button.setStyleSheet("QPushButton { background-color: red; border-radius: 20px; width: 50px; height: 60px; color:white; }"
-        "QPushButton:hover { background-color: #B22222; }")  # Set the button to red, with round corners, shorter width, and taller height
-        next_button.setEnabled(True)
+    def enable_next_button(self, next_button: StoryButton):
+        if (next_button.lev_id == self.level + 1):
+            next_button.setStyleSheet("QPushButton { background-color: red; border-radius: 20px; width: 50px; height: 60px; color:white; }"
+            "QPushButton:hover { background-color: #B22222; }")  # Set the button to red, with round corners, shorter width, and taller height
+            next_button.setEnabled(True)
+            self.level+=1

@@ -1,5 +1,5 @@
 from PyQt5.QtCore import QRect, Qt, QDate, QTime
-from PyQt5.QtGui import QPainter
+from PyQt5.QtGui import QPainter, QFont
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLineEdit, QPushButton, QMessageBox, QDialog, QLabel, \
     QDialogButtonBox, QFrame, QAbstractSpinBox, QToolButton, QGroupBox, QDateEdit, QTimeEdit
 from datetime import time
@@ -7,6 +7,30 @@ from datetime import time
 from .draggable import DraggableLabel
 import os
 import json
+
+def pushButtonStyle(button: QPushButton):
+    button.setStyleSheet("""
+                                   QPushButton { 
+                                      background-color: snow; border-radius: 10px; min-width: 90px; height: 35px;color:white;
+                                      color: dimgray
+                                   }
+                                   QPushButton:hover {
+                                      background-color: Gainsboro;
+                                   }""")
+    button.setFont(QFont("Arial", 11, QFont.Bold))
+
+def editLineStyle(line: QLineEdit):
+    line.setStyleSheet("""
+                       QLineEdit { 
+                          background-color: snow; border-radius: 10px; width: 90px; height: 35px;color:white;
+                          color: dimgray
+                       }
+                       """)
+    line.setFont(QFont("Arial", 11, QFont.Bold))
+
+def labelStyle(label):
+    label.setStyleSheet("color: white;")
+    label.setFont(QFont("Arial", 11, QFont.Bold))
 
 
 def deleteItemsOfLayout(layout):
@@ -29,6 +53,13 @@ class PopUp(QDialog):
         self.layout = None
         self.content = None
         self.setWindowModality(Qt.ApplicationModal)
+        self.setStyleSheet("""PopUp 
+        {
+            background-color: #B22222;
+            color: white;
+            
+        }""")
+        self.setFont(QFont("Arial", 11, QFont.Bold))
 
     def cancel(self):
         self.exit_flag = True
@@ -48,8 +79,12 @@ class PopUpMsg(PopUp):
         self.layout = QVBoxLayout()
         self.setWindowTitle("Сообщение")
         label = QLabel(op)
+        labelStyle(label)
+
         self.layout.addWidget(label)
         ok_button = QPushButton("ОК")
+        pushButtonStyle(ok_button)
+
         ok_button.clicked.connect(self.cancel)
 
         self.layout.addWidget(ok_button)
@@ -64,24 +99,28 @@ class PopUpLogin(PopUp):
         self.path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "auth.json")
         self.layout = QVBoxLayout()
         self.allow = False
+        self.admin = False
         self.setWindowTitle("Авторизация")
 
         button_layout = QHBoxLayout()
         send_button = QPushButton("ОК")
+        pushButtonStyle(send_button)
         send_button.clicked.connect(self.send)
         button_layout.addWidget(send_button)
         cancel_button = QPushButton("Отмена")
+        pushButtonStyle(cancel_button)
         cancel_button.clicked.connect(self.cancel)
         button_layout.addWidget(cancel_button)
 
-
-
         edit_line_login = QLineEdit()
+        editLineStyle(edit_line_login)
         edit_line_login.setMaxLength(15)
         edit_line_login.setPlaceholderText("Логин")
+
         self.edit_login = edit_line_login
 
         edit_line_password = QLineEdit()
+        editLineStyle(edit_line_password)
         edit_line_password.setMaxLength(15)
         edit_line_password.setPlaceholderText("Пароль")
         edit_line_password.setEchoMode(QLineEdit.Password)
@@ -126,6 +165,8 @@ class PopUpLogin(PopUp):
                 print(self.hash_pass())
                 if hash_res is not None and str(self.hash_pass()) == hash_res:
                     self.allow = True
+                    if self.edit_login.text() == "admin":
+                        self.admin = True
                     self.close()
                 else:
                     msg = PopUpMsg(self, "Неверный логин или пароль!")
@@ -155,12 +196,15 @@ class PopUpInput(PopUp):
         send_button = QPushButton("ОК")
         send_button.clicked.connect(self.send)
         button_layout.addWidget(send_button)
+        pushButtonStyle(send_button)
 
         cancel_button = QPushButton("Отмена")
         cancel_button.clicked.connect(self.cancel)
         button_layout.addWidget(cancel_button)
+        pushButtonStyle(cancel_button)
 
         self.layout.addWidget(edit_line)
+        editLineStyle(edit_line)
         self.layout.addLayout(button_layout)
         self.edit_line = edit_line
 
@@ -191,22 +235,28 @@ class PopUpEditWay(PopUp):
         buttons.addLayout(buttons_ed)
 
         self.setWindowTitle("Редактировать путь")
-        self.layout.addWidget(QLabel("Редактировать путь: " + self.parent.rmap.ways[w_id][0]))
+        label_edit_way = QLabel("Редактировать путь: " + self.parent.rmap.ways[w_id][0])
+        labelStyle(label_edit_way)
+        self.layout.addWidget(label_edit_way)
 
         rename_button = QPushButton("Переименовать")
         rename_button.clicked.connect(self.rename)
         buttons_ed.addWidget(rename_button)
+        pushButtonStyle(rename_button)
 
         move_button = QPushButton("Переместить")
         move_button.clicked.connect(self.move_way)
+        pushButtonStyle(move_button)
         buttons_ed.addWidget(move_button)
 
         del_button = QPushButton("Удалить")
         del_button.clicked.connect(self.delete)
+        pushButtonStyle(del_button)
         buttons_ed.addWidget(del_button)
 
         cancel_button = QPushButton("ОК")
         cancel_button.clicked.connect(self.cancel)
+        pushButtonStyle(cancel_button)
         buttons.addWidget(cancel_button)
 
         self.layout.addLayout(buttons)
@@ -229,16 +279,21 @@ class PopUpEditWay(PopUp):
             line.setFrameShape(QFrame.HLine)
             line.setFrameShadow(QFrame.Sunken)
 
-            rename_layout.addWidget(QLabel("Переименовать путь"))
+            rename_label = QLabel("Переименовать путь")
+            labelStyle(rename_label)
+            rename_layout.addWidget(rename_label)
             rename_layout.addWidget(line)
             rename_layout.addLayout(edit_layout)
 
             edit_line = QLineEdit()
+            editLineStyle(edit_line)
             edit_line.setMaxLength(15)
             edit_line.setPlaceholderText("Название пути")
             cancel_button = QPushButton("Закрыть")
+            pushButtonStyle(cancel_button)
             cancel_button.clicked.connect(self.close_inner)
             send_button = QPushButton("Подтвердить")
+            pushButtonStyle(send_button)
             send_button.clicked.connect(self.set_rename)
 
             edit_layout.addWidget(edit_line)
@@ -259,7 +314,9 @@ class PopUpEditWay(PopUp):
             self.content.update({'new name': self.edit_line.text()})
             self.parent.pop_up_temp_handle(self)
             self.layout.removeWidget(self.layout.itemAt(0).widget())
-            self.layout.insertWidget(0, QLabel("Редактировать путь: " + self.parent.rmap.ways[self.content['w_id']][0]))
+            new_label = QLabel("Редактировать путь: " + self.parent.rmap.ways[self.content['w_id']][0])
+            labelStyle(new_label)
+            self.layout.insertWidget(0, new_label)
             self.close_inner()
         else:
             self.edit_line.setText("Название пути")
@@ -272,7 +329,9 @@ class PopUpEditWay(PopUp):
             arrows_layout = QVBoxLayout()
 
             arrow_up = QToolButton()
+            arrow_up.setStyleSheet("QToolButton {color: DimGray; background-color: snow;}")
             arrow_down = QToolButton()
+            arrow_down.setStyleSheet("QToolButton {color: DimGray; background-color: snow;}")
             arrow_up.setArrowType(Qt.UpArrow)
             arrow_down.setArrowType(Qt.DownArrow)
             arrow_up.clicked.connect(self.move_up)
@@ -281,6 +340,7 @@ class PopUpEditWay(PopUp):
             arrows_layout.addWidget(arrow_down)
 
             cancel_button = QPushButton("Закрыть")
+            pushButtonStyle(cancel_button)
             cancel_button.clicked.connect(self.close_inner)
 
             inner_layout.addLayout(arrows_layout)
@@ -290,7 +350,9 @@ class PopUpEditWay(PopUp):
             line.setFrameShape(QFrame.HLine)
             line.setFrameShadow(QFrame.Sunken)
 
-            move_layout.addWidget(QLabel("Переместить путь"))
+            move_way_label = QLabel("Переместить путь")
+            labelStyle(move_way_label)
+            move_layout.addWidget(move_way_label)
             move_layout.addWidget(line)
             move_layout.addLayout(inner_layout)
 
@@ -317,9 +379,11 @@ class PopUpInsertElement(PopUp):
 
         time_edit_layout = QHBoxLayout()
         timeEdit1 = QTimeEdit(QTime.currentTime())
+        editLineStyle(timeEdit1)
         timeEdit1.setTimeRange(QTime(self.parent.rmap.start, 0, 0, 0), QTime(self.parent.rmap.end, 0, 0, 0))
 
         timeEdit2 = QTimeEdit(QTime.currentTime())
+        editLineStyle(timeEdit2)
         timeEdit2.setTimeRange(QTime(self.parent.rmap.start, 0, 0, 0), QTime(self.parent.rmap.end, 0, 0, 0))
         self.time_edits = [timeEdit1, timeEdit2]
 
@@ -333,15 +397,20 @@ class PopUpInsertElement(PopUp):
         buttons = QHBoxLayout()
         send_button = QPushButton("ОК")
         send_button.clicked.connect(self.insert)
+        pushButtonStyle(send_button)
         buttons.addWidget(send_button)
 
         cancel_button = QPushButton("Отмена")
+        pushButtonStyle(cancel_button)
         cancel_button.clicked.connect(self.cancel)
         buttons.addWidget(cancel_button)
 
-        self.layout.addWidget(QLabel(f"Поставить \"{el.text()}\" на \"{self.parent.rmap.ways[w_id][0]}\""))
+        label_main = QLabel(f"Поставить \"{el.text()}\" на \"{self.parent.rmap.ways[w_id][0]}\"")
+        labelStyle(label_main)
+        self.layout.addWidget(label_main)
         self.layout.addLayout(time_edit_layout)
         self.layout.addLayout(buttons)
+        editLineStyle(edit_line)
         self.layout.addWidget(edit_line)
         self.edit_line = edit_line
         self.setLayout(self.layout)
@@ -371,12 +440,14 @@ class PopUpEditElement(PopUp):
         cur_time1 = QTime()
         cur_time1.setHMS(el['time_s'].hour, el['time_s'].minute, 0, 0)
         timeEdit1 = QTimeEdit(cur_time1)
+        editLineStyle(timeEdit1)
         timeEdit1.setTimeRange(QTime(self.parent.rmap.start, 0, 0, 0), QTime(self.parent.rmap.end, 0, 0, 0))
         timeEdit1.timeChanged.connect(self.edit_time_s)
 
         cur_time2 = QTime()
         cur_time2.setHMS(el['time_e'].hour, el['time_e'].minute, 0, 0)
         timeEdit2 = QTimeEdit(cur_time2)
+        editLineStyle(timeEdit2)
         timeEdit2.setTimeRange(QTime(self.parent.rmap.start, 0, 0, 0), QTime(self.parent.rmap.end, 0, 0, 0))
         # timeEdit2.editingFinished.connect(self.edit_time_e)
         timeEdit2.timeChanged.connect(self.edit_time_e)
@@ -386,25 +457,31 @@ class PopUpEditElement(PopUp):
         time_edit_layout.addWidget(timeEdit2)
 
         edit_line = QLineEdit()
+        editLineStyle(edit_line)
         edit_line.setMaxLength(15)
         edit_line.setText(el['text'])
         edit_line.textChanged.connect(self.changed_text)
 
         buttons = QHBoxLayout()
         send_button = QPushButton("ОК")
+        pushButtonStyle(send_button)
         send_button.clicked.connect(self.cancel)
         buttons.addWidget(send_button)
 
         del_button = QPushButton("Удалить")
+        pushButtonStyle(del_button)
         del_button.clicked.connect(self.delete)
         buttons.addWidget(del_button)
 
         cancel_button = QPushButton("Отмена")
+        pushButtonStyle(cancel_button)
         cancel_button.clicked.connect(self.restore)
         buttons.addWidget(cancel_button)
 
-        self.layout.addWidget(QLabel(
-            f"Изменить \"{el['name']}({el['time_s'].strftime('%H:%M')}-{el['time_e'].strftime('%H:%M')})\" на \"{self.parent.rmap.ways[w_id][0]}\""))
+        label_widg = QLabel(
+            f"Изменить \"{el['name']}({el['time_s'].strftime('%H:%M')}-{el['time_e'].strftime('%H:%M')})\" на \"{self.parent.rmap.ways[w_id][0]}\"")
+        labelStyle(label_widg)
+        self.layout.addWidget(label_widg)
         self.layout.addLayout(time_edit_layout)
         self.layout.addLayout(buttons)
         self.edit_line = edit_line
