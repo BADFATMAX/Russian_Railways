@@ -13,7 +13,7 @@ class StoryTab(QWidget):
         storyLabel = QLabel(
             "<font size=40><b>Тууу туу, на ваши плечи легло ответственное задание - переправить уголь из Кузбасса в Камбоджу!</b></font>")
         storyLabels = QLabel(
-            "<font size=40><b>Чтож, говорят вы спец.., надеемся для вас не составит труда пройти интересные задания на вашем пути! Удачи!</b></font>")
+            "<font size=40><b>Чтож, говорят вы спец.., надеемся вам не составит труда пройти интересные задания на вашем пути! Удачи!</b></font>")
         storyLabel.setFont(QFont("Arial", 6, QFont.Bold))
         storyLabels.setFont(QFont("Arial", 6, QFont.Bold)
                             )  # Set the font to bold
@@ -46,11 +46,11 @@ class StoryTab(QWidget):
         for name in button_names:
             button = QPushButton(name)
             button.setFont(QFont("Arial", 14, QFont.Bold))
-            button.setStyleSheet("QPushButton { background-color: gray; border-radius: 20px; width: 100px; height: 60px; }")  # Set the buttons to gray, with round corners, shorter width, and taller height
+            button.setStyleSheet("QPushButton { background-color: gray; border-radius: 20px; width: 100px; height: 60px;}")  # Set the buttons to gray, with round corners, shorter width, and taller height
             buttons.append(button)
 
         # Set the first button to red
-        buttons[0].setStyleSheet("QPushButton { background-color: red; border-radius: 20px; width: 100px; height: 60px; }")  # Set the first button to red, with round corners, shorter width, and taller height
+        buttons[0].setStyleSheet("QPushButton { background-color: red; border-radius: 20px; width: 100px; height: 60px; color:white; }")  # Set the first button to red, with round corners, shorter width, and taller height
 
         # Connect the button behavior
         for i in range(4):
@@ -70,5 +70,5 @@ class StoryTab(QWidget):
 
     # Enable the next button when the current button is clicked
     def enable_next_button(self, next_button):
-        next_button.setStyleSheet("QPushButton { background-color: red; border-radius: 20px; width: 50px; height: 60px; }")  # Set the button to red, with round corners, shorter width, and taller height
+        next_button.setStyleSheet("QPushButton { background-color: red; border-radius: 20px; width: 50px; height: 60px; color:white; }")  # Set the button to red, with round corners, shorter width, and taller height
         next_button.setEnabled(True)

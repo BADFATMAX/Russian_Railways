@@ -65,6 +65,7 @@ class EditorTab(QWidget):
            font-size: 22px;
            min-width: 100px;
            min-height: 40px;
+           color:white;
        }
        """
 

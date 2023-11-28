@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QTextBrowser, QTreeWidget, QTreeWidgetItem, QHBoxLayout
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QFont
 
 class DocumentationTab(QWidget):
    def __init__(self):
@@ -24,15 +25,19 @@ class DocumentationTab(QWidget):
             max-width: 300px;
             border-radius: 30px;
             background-color: red;
+            font-weight: bold;
+            color:white;
             }
             QTreeWidget::item {
             font-weight: bold;
+            color:white;
             }
             QHeaderView::section {
             font-weight: bold;
             }
             """)
 
+       self.tree.setFont(QFont("Arial", 10)) 
        # Create a QTextBrowser for the documentation
        self.textBrowser = QTextBrowser()
        self.textBrowser.setStyleSheet("QTextBrowser { background-color: white; }")

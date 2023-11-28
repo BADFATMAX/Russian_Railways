@@ -11,9 +11,9 @@ class GamesTab(QWidget):
     def __init__(self, parent):
         super().__init__(parent)
         self.layout = QVBoxLayout()
-        self.pushButton = QPushButton("CardGame")
-        self.pushButton2 = QPushButton("SlidingGame")
-        self.pushButton3 = QPushButton("PianoGame")
+        self.pushButton = QPushButton("CARD GAME")
+        self.pushButton2 = QPushButton("SLIDING GAME")
+        self.pushButton3 = QPushButton("PIANO GAME")
 
         button_style = """
             QPushButton {
@@ -26,6 +26,7 @@ class GamesTab(QWidget):
                 font-size: 22px;
                 min-width: 100px;
                 min-height: 50px;
+                color: white;
             }
             """
 

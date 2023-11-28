@@ -23,7 +23,8 @@ class HistoryTab(QWidget):
                font-weight: bold; 
                font-size: 22px; 
                min-width: 100px; 
-               min-height: 40px; 
+               min-height: 40px;
+               color:white;
            }
            QPushButton:pressed {
                background-color: rgb(224, 0, 0);
@@ -44,7 +45,8 @@ class HistoryTab(QWidget):
                font-weight: bold; 
                font-size: 22px; 
                min-width: 100px;
-               min-height: 40px; 
+               min-height: 40px;
+               color:white;
            }
            QPushButton:pressed {
                background-color: rgb(224, 0, 0);
