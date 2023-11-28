@@ -58,7 +58,13 @@ class StoryTab(QWidget):
 
         # Add the buttons to the button layout
         for button in buttons:
+            button.setStyleSheet("QPushButton { background-color: gray; border-radius: 20px; width: 100px; height: 60px;}"
+                         "QPushButton:hover { background-color: #B22222; }")
             buttonLayout.addWidget(button)
+
+        # Set the first button to red
+        buttons[0].setStyleSheet("QPushButton { background-color: red; border-radius: 20px; width: 100px; height: 60px; color:white; }"
+                        "QPushButton:hover { background-color: #B22222; }")  # Set the first button to red, with round corners, shorter width, and taller height
 
         # Add the button layout to the picture and buttons layout
         pictureAndButtonsLayout.addLayout(buttonLayout)
@@ -70,5 +76,6 @@ class StoryTab(QWidget):
 
     # Enable the next button when the current button is clicked
     def enable_next_button(self, next_button):
-        next_button.setStyleSheet("QPushButton { background-color: red; border-radius: 20px; width: 50px; height: 60px; color:white; }")  # Set the button to red, with round corners, shorter width, and taller height
+        next_button.setStyleSheet("QPushButton { background-color: red; border-radius: 20px; width: 50px; height: 60px; color:white; }"
+        "QPushButton:hover { background-color: #B22222; }")  # Set the button to red, with round corners, shorter width, and taller height
         next_button.setEnabled(True)

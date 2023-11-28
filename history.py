@@ -12,7 +12,7 @@ class HistoryTab(QWidget):
        self.files_box.setDirectory('maps') # Set default directory to "maps"
        self.layout.addWidget(self.files_box)
 
-       self.create_button = QPushButton("Create File")
+       self.create_button = QPushButton("СОЗДАТЬ ФАИЛ")
        self.create_button.setStyleSheet("""
            QPushButton { 
                background-color: red; 
@@ -26,6 +26,9 @@ class HistoryTab(QWidget):
                min-height: 40px;
                color:white;
            }
+           QPushButton:hover {
+              background-color: #B22222;
+           }
            QPushButton:pressed {
                background-color: rgb(224, 0, 0);
                border-style: inset;
@@ -34,7 +37,7 @@ class HistoryTab(QWidget):
        self.create_button.clicked.connect(self.create_file)
        self.layout.addWidget(self.create_button)
 
-       self.delete_button = QPushButton("Delete File")
+       self.delete_button = QPushButton("УДАЛИТЬ ФАИЛ")
        self.delete_button.setStyleSheet("""
            QPushButton { 
                background-color: red; 
@@ -47,6 +50,9 @@ class HistoryTab(QWidget):
                min-width: 100px;
                min-height: 40px;
                color:white;
+           }
+           QPushButton:hover {
+            background-color: #B22222;
            }
            QPushButton:pressed {
                background-color: rgb(224, 0, 0);

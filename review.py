@@ -11,7 +11,7 @@ class RewButton(QPushButton):
         self.setFont(QFont("Arial", 14, QFont.Bold))
         self.setStyleSheet("""
                         QPushButton { 
-                           background-color: gray; border-radius: 20px; width: 100px; height: 60px; 
+                           background-color: gray; border-radius: 20px; width: 100px; height: 60px;color:white;
                         }
                         QPushButton:hover {
                            background-color: #A9A9A9;
@@ -22,7 +22,7 @@ class RewButton(QPushButton):
             self.active = False
             self.setStyleSheet("""
                         QPushButton { 
-                           background-color: gray; border-radius: 20px; width: 100px; height: 60px; 
+                           background-color: gray; border-radius: 20px; width: 100px; height: 60px;color:white; 
                         }
                         QPushButton:hover {
                            background-color: #A9A9A9;
@@ -44,7 +44,7 @@ class AiRewButton(QPushButton):
         self.parent = parent
         self.setFont(QFont("Arial", 14, QFont.Bold))
         self.setStyleSheet("""QPushButton { 
-                                    background-color: red; border-radius: 20px; width: 100px; height: 60px; 
+                                    background-color: red; border-radius: 20px; width: 100px; height: 60px;color:white;
                                 }
                                     QPushButton:hover {
                                         background-color: #B22222;

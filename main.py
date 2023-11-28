@@ -6,14 +6,14 @@ from story import StoryTab
 from games_tab import GamesTab
 from documentation import DocumentationTab
 from leaderboard import LeaderboardTab
+from admin_panel import AdminTab
 from review import ReviewTab
-
 from editor_classes import popup
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Приложение")
+        self.setWindowTitle("PyQT Tabs")
         self.tab_widget = QTabWidget()
 
         editor_tab = EditorTab()
@@ -22,15 +22,18 @@ class MainWindow(QMainWindow):
         review_tab = ReviewTab()
         rhythm_game = GamesTab(self)
         docs_tab = DocumentationTab()
-        leaderboard_tab = LeaderboardTab()
+        leaderboard_tab = LeaderboardTab() 
 
-        self.tab_widget.addTab(editor_tab, "Редактор")
+        admin_tab = AdminTab()
+
+        self.tab_widget.addTab(editor_tab, "Editor")
         self.tab_widget.addTab(history_tab, "История Карт")
         self.tab_widget.addTab(story_tab, "Сюжет")
         self.tab_widget.addTab(review_tab, "Проверка")
         self.tab_widget.addTab(rhythm_game, "Игры")
         self.tab_widget.addTab(docs_tab, "Документация")
         self.tab_widget.addTab(leaderboard_tab, "Статистика")
+        self.tab_widget.addTab(admin_tab, "Админ")
 
         self.setCentralWidget(self.tab_widget)
         

@@ -47,25 +47,74 @@ class LeaderboardTab(QWidget):
         self.player_1_button.setMinimumWidth(150)
         self.player_1_button.setStyleSheet("text-align: center;")
         self.player_1_button.setFont(QFont("Arial", 10)) 
+        
+
+        self.player_1_button.setStyleSheet("""
+    QPushButton { 
+        border-radius: 10px; 
+        font-weight: bold; 
+        background-color: red;
+        min-height: 140px;
+        font-size: 22px;
+        color:white;
+    }
+    QPushButton:hover {
+        background-color: #B22222;
+    }
+""")
+
         self.leaderboard_box.addWidget(self.player_1_button)
 
-        self.player_2_button = QPushButton("ИГРОК №1")
+        self.player_2_button = QPushButton("ИГРОК №2")
         self.player_2_button.setStyleSheet("border-radius: 10px; font-weight: bold; background-color: red;")
         self.player_2_button.clicked.connect(lambda: self.show_picture("playersCSV/p_2.jpg"))
         self.player_2_button.setMinimumHeight(50)
         self.player_2_button.setMinimumWidth(150)
         self.player_2_button.setStyleSheet("text-align: center;")
         self.player_2_button.setFont(QFont("Arial", 10)) 
-        self.leaderboard_box.addWidget(self.player_2_button)
 
-        self.player_3_button = QPushButton("ИГРОК №1")
+        self.player_2_button.setStyleSheet("""
+    QPushButton { 
+        border-radius: 10px; 
+        font-weight: bold; 
+        background-color: red;
+        min-height: 80px;
+        font-size: 22px;
+        color:white;
+    }
+    QPushButton:hover {
+        background-color: #B22222;
+    }
+""")
+
+        self.leaderboard_box.addWidget(self.player_2_button)
+        
+        self.player_3_button = QPushButton("ИГРОК №3")
         self.player_3_button.setStyleSheet("border-radius: 10px; font-weight: bold; min-height: 80px; background-color: red;")
         self.player_3_button.clicked.connect(lambda: self.show_picture("playersCSV/p_3.jpg"))
         self.player_3_button.setMinimumHeight(50)
         self.player_3_button.setMinimumWidth(150)
         self.player_3_button.setStyleSheet("text-align: center;")
-        self.player_3_button.setFont(QFont("Arial", 10)) 
+        self.player_3_button.setFont(QFont("Arial", 10))
+
+        self.player_3_button.setStyleSheet("""
+    QPushButton { 
+        border-radius: 10px; 
+        font-weight: bold; 
+        min-height: 80px; 
+        background-color: red;
+        font-size: 22px;
+        color:white;
+    }
+    QPushButton:hover {
+        background-color: #B22222;
+    }
+""")
+
         self.leaderboard_box.addWidget(self.player_3_button)
+
+
+
 
         self.setLayout(self.layout)
 
