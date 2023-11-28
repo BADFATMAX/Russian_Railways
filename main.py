@@ -5,7 +5,9 @@ from history import HistoryTab
 from story import StoryTab
 from games_tab import GamesTab
 from documentation import DocumentationTab
-from leaderboard import LeaderboardTab 
+from leaderboard import LeaderboardTab
+
+from editor_classes import popup
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -28,6 +30,20 @@ class MainWindow(QMainWindow):
         self.tab_widget.addTab(leaderboard_tab, "Статистика")
 
         self.setCentralWidget(self.tab_widget)
+        
+        msg = popup.PopUpLogin(self, "login")
+        msg.show()
+        # self.popUps.append(msg)
+    
+    def pop_up_handle(self, popUpObj: popup.PopUpLogin):
+        if popUpObj.allow == False:
+            self.close()
+        else:
+            self.children()[-1].setParent(None)
+            print("children: ", len(self.children()))
+            for child in self.children():
+                print(child, " children: ", len(child.children()))
+
         
 if __name__ == '__main__':
     app = QApplication(sys.argv)

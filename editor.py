@@ -157,7 +157,7 @@ class EditorTab(QWidget):
             # pixmap = pixmap.scaled(100, 67)
             element.setPixmap(pixmap)
             self.elements.append(element)
-            scrollLayout.addWidget(element, i / 3, i % 3, Qt.AlignLeft)
+            scrollLayout.addWidget(element, i // 3, i % 3, Qt.AlignLeft)
             # scrollLayout.addWidget(element)
 
         self.layout.addLayout(layout_bottom)

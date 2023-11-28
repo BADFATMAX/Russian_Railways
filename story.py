@@ -32,7 +32,7 @@ class StoryTab(QWidget):
 
         # Add a QLabel for the picture
         pixmap = QPixmap('GamePics/map.png')
-        pixmap_bigger = pixmap.scaled(pixmap.width() * 1.2, pixmap.height() * 1.2)  # Make the picture 1.5 times bigger
+        pixmap_bigger = pixmap.scaled(int(pixmap.width() * 1.2), int(pixmap.height() * 1.2))  # Make the picture 1.5 times bigger
         label = QLabel()
         label.setPixmap(pixmap_bigger)
         pictureAndButtonsLayout.addWidget(label)
