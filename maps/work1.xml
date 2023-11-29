@@ -1,0 +1,2 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<xml><table start="6" end="22"><way name="Перегон Ш-А" height="1" /><way name="1 путь" height="1"><element uri="anchoring" time_s="06:00" time_e="06:30" text="" align="center" /></way><way name="2 путь" height="1"><element uri="uncoupling" time_s="06:30" time_e="07:00" text="" align="center" /></way></table></xml>

@@ -10,6 +10,7 @@ import sys
 class CommonTab(QWidget):
     def __init__(self, parent):
         super().__init__(parent)
+        self.parent = parent
         self.layout = QVBoxLayout()
         self.pushButton = QPushButton("РАБОТА ТОВАРИЩА")
         self.pushButton2 = QPushButton("МОЯ РАБОТА")
@@ -69,28 +70,34 @@ class CommonTab(QWidget):
             self.pianogame()
 
     def cardgame(self):
-        ws = QApplication.allWindows()
-        for w in ws:
-          w.close()
-        subprocess.run([f'{sys.executable}', 'games/CardGame/card_game.py'])
-        for w in ws:
-          w.show()
+        # ws = QApplication.allWindows()
+        # for w in ws:
+        #   w.close()
+        # subprocess.run([f'{sys.executable}', 'games/CardGame/card_game.py'])
+        # for w in ws:
+        #   w.show()
+        self.parent.tab_widget.setCurrentIndex(0)
+        self.parent.editor_tab.common_1()
 
     def slidinggame(self):
-        ws = QApplication.allWindows()
-        for w in ws:
-            w.close()
-        subprocess.run([f'{sys.executable}', 'games/Picture Sliding Puzzle/game.py'])
-        for w in ws:
-            w.show()
+        # ws = QApplication.allWindows()
+        # for w in ws:
+        #     w.close()
+        # subprocess.run([f'{sys.executable}', 'games/Picture Sliding Puzzle/game.py'])
+        # for w in ws:
+        #     w.show()
+        self.parent.tab_widget.setCurrentIndex(0)
+        self.parent.editor_tab.common_2()
 
     def pianogame(self):
-        ws = QApplication.allWindows()
-        for w in ws:
-            w.close()
-        subprocess.run(f"{sys.executable} games/PianoGame/main.py")
-        for w in ws:
-            w.show()
+        # ws = QApplication.allWindows()
+        # for w in ws:
+        #     w.close()
+        # subprocess.run(f"{sys.executable} games/PianoGame/main.py")
+        # for w in ws:
+        #     w.show()
+        self.parent.tab_widget.setCurrentIndex(0)
+        self.parent.editor_tab.common_3()
 
     def game1(self):
         self.cardgame()

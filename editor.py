@@ -169,6 +169,25 @@ class EditorTab(QWidget):
         scroll.setWidget(scroll_content)
         self.setLayout(self.layout)
     
+    def common_1(self):
+        fp = os.path.join(os.path.dirname(__file__), "maps", "work1.xml")
+        self.rmap = RailMap(fp)
+        self.rmap.set_visible(True)
+        self.draw_map()
+    
+    def common_2(self):
+        fp = os.path.join(os.path.dirname(__file__), "maps", "work2.xml")
+        self.rmap = RailMap(fp)
+        self.rmap.set_visible(True)
+        self.draw_map()
+    
+    def common_3(self):
+        fp = os.path.join(os.path.dirname(__file__), "maps", "work3.xml")
+        self.rmap = RailMap(fp)
+        self.rmap.set_visible(True)
+        self.draw_map()
+
+    
     def story_load(self):
         fp = os.path.join(os.path.dirname(__file__), "maps", "level1.xml")
         self.rmap = RailMap(fp)
