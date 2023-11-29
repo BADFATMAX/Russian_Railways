@@ -11,8 +11,9 @@ class StoryButton(QPushButton):
         self.lev_id = id
 
 class StoryTab(QWidget):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent):
+        super().__init__(parent=parent)
+        self.parent = parent
         self.level = 0
         self.layout = QVBoxLayout()
 
@@ -89,3 +90,5 @@ class StoryTab(QWidget):
             "QPushButton:hover { background-color: #B22222; }")  # Set the button to red, with round corners, shorter width, and taller height
             next_button.setEnabled(True)
             self.level+=1
+            self.parent.tab_widget.setCurrentIndex(0)
+            self.parent.editor_tab.story_load()

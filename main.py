@@ -13,12 +13,12 @@ from editor_classes import popup
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("PyQT Tabs")
+        self.setWindowTitle("Приложение")
         self.tab_widget = QTabWidget()
 
-        editor_tab = EditorTab()
+        self.editor_tab = EditorTab()
         history_tab = HistoryTab()
-        story_tab = StoryTab()
+        story_tab = StoryTab(self)
         review_tab = ReviewTab()
         rhythm_game = GamesTab(self)
         docs_tab = DocumentationTab()
@@ -26,7 +26,7 @@ class MainWindow(QMainWindow):
 
 
 
-        self.tab_widget.addTab(editor_tab, "Editor")
+        self.tab_widget.addTab(self.editor_tab, "Редактор")
         self.tab_widget.addTab(history_tab, "История Карт")
         self.tab_widget.addTab(story_tab, "Сюжет")
         self.tab_widget.addTab(review_tab, "Проверка")

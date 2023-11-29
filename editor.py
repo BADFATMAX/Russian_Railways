@@ -8,12 +8,13 @@ from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLab
 
 from editor_classes.draggable import DraggableLabel
 from editor_classes.editorscene import EditorScene
-from editor_classes.popup import PopUpInput, PopUp, PopUpEditWay, deleteItemsOfLayout, PopUpInsertElement, \
+from editor_classes.popup import PopUpInput, PopUp, PopUpEditWay, deleteItemsOfLayout, PopUpInsertElement, pushButtonStyle, \
     PopUpEditElement
 from map_class import RailMap
 import math
 
 from functools import reduce
+import os
 
 
 class EditorView(QGraphicsView):
@@ -148,6 +149,7 @@ class EditorTab(QWidget):
         layout_bottom.addStretch()
 
         self.info_layout = layout_right
+        self.bottom_layout = layout_bottom
 
         self.elements = []
         for i, el_in_panel in enumerate(self.rmap.el_config):
@@ -166,6 +168,31 @@ class EditorTab(QWidget):
         self.layout.addLayout(layout_bottom)
         scroll.setWidget(scroll_content)
         self.setLayout(self.layout)
+    
+    def story_load(self):
+        fp = os.path.join(os.path.dirname(__file__), "maps", "level1.xml")
+        self.rmap = RailMap(fp)
+        self.rmap.set_visible(True)
+        self.draw_map()
+        label = QLabel("""
+Вы управляющий на горной кузбасской станции.
+Из-за снежной бури ,ночью , один из ваших железнодорожных путей засыпало снегом (1ый путь).
+Машины не справляются с его уборкой, мало мощности.
+НО, работа продолжается. На вашей станции должен остановиться гружёный углём локомотив в 15:15.
+Подготовьте путь к его прибытию!
+""")
+        label.setStyleSheet("QLabel { background-color:snow; min-width: 400px; border-radius: 20px; border-style: solid; border-color:red; border-width: 4px; color: dimgray} ")
+        # label.setStyleSheet("color: dimgray;")
+        label.setFont(QFont("Arial", 11, QFont.Bold))
+
+        buttons_layout = QVBoxLayout()
+        button_send = QPushButton("Отправить")
+        # pushButtonStyle(button_send)
+        # buttons_layout.addWidget(button_send)
+
+        # self.button_layout.addLayout(buttons_layout)
+        self.bottom_layout.addWidget(label)
+        # self.bottom_layout.addWidget(button_send)
 
     def save_map(self):
         options = QFileDialog.Options()
