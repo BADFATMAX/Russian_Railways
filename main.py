@@ -8,6 +8,7 @@ from documentation import DocumentationTab
 from leaderboard import LeaderboardTab
 from admin_panel import AdminTab
 from review import ReviewTab
+from common import CommonTab
 from editor_classes import popup
 
 class MainWindow(QMainWindow):
@@ -21,6 +22,7 @@ class MainWindow(QMainWindow):
         story_tab = StoryTab()
         review_tab = ReviewTab()
         rhythm_game = GamesTab(self)
+        common_tab = CommonTab(self)
         docs_tab = DocumentationTab()
         leaderboard_tab = LeaderboardTab() 
 
@@ -31,6 +33,7 @@ class MainWindow(QMainWindow):
         self.tab_widget.addTab(story_tab, "Сюжет")
         self.tab_widget.addTab(review_tab, "Проверка")
         self.tab_widget.addTab(rhythm_game, "Игры")
+        self.tab_widget.addTab(common_tab, "Совместный режим")
         self.tab_widget.addTab(docs_tab, "Документация")
         self.tab_widget.addTab(leaderboard_tab, "Статистика")
 
