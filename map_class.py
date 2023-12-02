@@ -65,7 +65,7 @@ class RailMap:
                 pass
         file2write = ET.ElementTree()
         file2write._setroot(root)
-        file2write.write(name + '.xml', encoding="UTF-8", xml_declaration=True)
+        file2write.write(name, encoding="UTF-8", xml_declaration=True)
 
     def load(self, name: str):
         tree = ET.parse(name)

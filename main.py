@@ -17,7 +17,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Приложение")
         self.tab_widget = QTabWidget()
 
-        self.editor_tab = EditorTab()
+        self.editor_tab = EditorTab(self)
         history_tab = HistoryTab()
         story_tab = StoryTab(self)
         review_tab = ReviewTab()
@@ -38,7 +38,7 @@ class MainWindow(QMainWindow):
         self.tab_widget.addTab(leaderboard_tab, "Статистика")
 
         self.setCentralWidget(self.tab_widget)
-        
+        self.admin = False
         msg = popup.PopUpLogin(self, "login")
         msg.show()
         # self.popUps.append(msg)
@@ -47,6 +47,7 @@ class MainWindow(QMainWindow):
         if popUpObj.admin:
             admin_tab = AdminTab()
             self.tab_widget.addTab(admin_tab, "Админ")
+            self.admin = True
         if popUpObj.allow == False:
             self.close()
         else:

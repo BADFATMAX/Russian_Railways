@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, time as dt_time
 
 from PyQt5 import QtSvg, QtGui
 from PyQt5.QtCore import QPointF, QPoint, QSize, QRect, QRectF
@@ -12,7 +12,7 @@ from editor_classes.draggable import DraggableLabel
 from editor_classes.editorscene import EditorScene
 from editor_classes.popup import PopUpInput, PopUp, PopUpEditWay, deleteItemsOfLayout, PopUpInsertElement, \
     pushButtonStyle, \
-    PopUpEditElement, PopUpMsg
+    PopUpEditElement, PopUpMsg, PopUpDev
 from map_class import RailMap
 import math
 
@@ -39,38 +39,91 @@ class EditorView(QGraphicsView):
             self.scale(1.6, 1.6)
         else:
             self.scale(0.625, 0.625)
-        self.parent().draw_map()
 
     def mouseDoubleClickEvent(self, event: QtGui.QMouseEvent) -> None:
-        folder = "captures" + datetime.now().strftime("%d_%m_%y_%H_%M_%S")
-        os.mkdir(folder)
+        if self.parent().parent.admin:
+            msg = PopUpDev(self, "dev")
+            msg.show()
+        else:
+            pass
 
-        map:RailMap = self.parent().rmap
+    def pop_up_handle(self, obj: PopUp):
+        if obj.op == "__capture()":
+            self.__capture()
+        elif obj.op == "__makeDataset()":
+            self.__makeDataset()
+        self.children()[-1].setParent(None)
+        print("children: ", len(self.children()))
+        for child in self.children():
+            print(child, " children: ", len(child.children()))
+
+    def __makeDataset(self):
+        with open(os.path.join("elements", "elements.json")) as fptr:
+            import json
+            data: dict = json.load(fptr)
+            labels = list(data.keys())
+        fp = os.path.join(os.path.dirname(__file__), "maps", "data1.xml")
+        filedata = None
+        with open(fp, 'r') as file:
+            filedata = file.read()
+            file.close()
+        fp = os.path.join(os.path.dirname(__file__), "maps", "data1tmp.xml")
+        for label in labels:
+            filedata_one = filedata.replace("el1", label)
+            for label_p in labels:
+                filedata_two = filedata_one.replace("el2", label_p)
+                with open(fp, 'w') as file:
+                    file.write(filedata_two)
+                    file.close()
+                self.parent().rmap = RailMap(fp)
+                self.parent().rmap.set_visible(True)
+                self.parent().draw_map()
+                self.__capture(f".{label}.{label_p}.", "captures_dataset", False)
+
+    def __capture(self, infix="", root_dir="captures", date=True):
+        if not os.path.exists(root_dir):
+            os.mkdir(root_dir)
+        if date:
+            infix+=datetime.now().strftime("%d_%m_%y_%H_%M_%S")
+        folder = os.path.join(root_dir, "captures" + infix)
+        os.mkdir(folder)
+        map: RailMap = self.parent().rmap
         x = 180
-        xhalf = x//2
+        xhalf = x // 2
         y = 50
         x0 = 50
         y0 = 50
         w_s_y = y0
         w_s_x = x0 + x
-        # hours = map.end - map.start + 1
-        hours = [[f"{h}", f"{h}_30"] for h in list(range(map.start, map.end))]
+
+        hours = [[dt_time(h), dt_time(h, 30)] for h in list(range(map.start, map.end))]
         hours = [jj for ii in hours for jj in ii]
         for idx, way in enumerate(map.ways):
             for hour in hours:
-                area = QRect(w_s_x, w_s_y, xhalf, y)
-                pixmap = QtGui.QPixmap(90 * 3, 50 * 3)
-                pixmap.fill(QtGui.QColor("white"))
+                try:
+                    if hour.minute == 0:
+                        hour_e = dt_time(hour.hour, 30)
+                    else:
+                        hour_e = dt_time(hour.hour + 1, 0)
+                    elems = map.elements[idx]
+                    flags = [el['time_e'].time() > hour and el['time_s'].time() < hour_e for el in elems]
+                    if True in flags:
+                        area = QRect(w_s_x, w_s_y, xhalf, y)
+                        pixmap = QtGui.QPixmap(90 * 3, 50 * 3)
+                        pixmap.fill(QtGui.QColor("white"))
 
-                painter = QPainter(pixmap)
-                self.parent().scene.render(painter, QRectF(pixmap.rect()), QRectF(area))
-                painter.end()
+                        painter = QPainter(pixmap)
+                        self.parent().scene.render(painter, QRectF(pixmap.rect()), QRectF(area))
+                        painter.end()
 
-                image = pixmap.toImage()
-                image.save(os.path.join(folder, f"{idx}_{way[0]}_{hour}" + ".png"))
-                w_s_x+=xhalf
-            w_s_y+=y
+                        image = pixmap.toImage()
+                        image.save(os.path.join(folder, f"{idx}_{way[0]}_{hour.strftime('%H_%M')}" + ".png"))
+                except Exception:
+                    pass
+                w_s_x += xhalf
+            w_s_y += y
             w_s_x = x0 + x
+
 
 class DashPen(QPen):
     def __init__(self, *args, **kwargs):
@@ -81,8 +134,9 @@ class DashPen(QPen):
 
 
 class EditorTab(QWidget):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent):
+        super().__init__(parent=parent)
+        self.parent = parent
         self.layout = QVBoxLayout()
         self.button_layout = QHBoxLayout()
         self.popUps = []
@@ -125,7 +179,6 @@ class EditorTab(QWidget):
         remove_row_button = QPushButton("Убрать путь")
         remove_row_button.setStyleSheet(button_style)
         remove_row_button.clicked.connect(self.remove_row)
-        
 
         # save_map_button = QPushButton("Сохранить")
         # save_map_button.clicked.connect(self.save_map)
@@ -201,7 +254,7 @@ class EditorTab(QWidget):
         self.layout.addLayout(layout_bottom)
         scroll.setWidget(scroll_content)
         self.setLayout(self.layout)
-    
+
     def open_other(self):
         fp = os.path.join(os.path.dirname(__file__), "maps", "other.xml")
         if not os.path.exists(fp):
@@ -211,7 +264,7 @@ class EditorTab(QWidget):
             self.rmap = RailMap(fp)
             self.rmap.set_visible(True)
             self.draw_map()
-    
+
     def open_mine(self):
         fp = os.path.join(os.path.dirname(__file__), "maps", "mine.xml")
         if not os.path.exists(fp):
@@ -221,7 +274,7 @@ class EditorTab(QWidget):
             self.rmap = RailMap(fp)
             self.rmap.set_visible(True)
             self.draw_map()
-    
+
     def do_union(self):
         fp1 = os.path.join(os.path.dirname(__file__), "maps", "other.xml")
         fp2 = os.path.join(os.path.dirname(__file__), "maps", "mine.xml")
@@ -238,7 +291,6 @@ class EditorTab(QWidget):
             self.rmap.set_visible(True)
             self.draw_map()
 
-    
     def story_load(self):
         fp = os.path.join(os.path.dirname(__file__), "maps", "level1.xml")
         self.rmap = RailMap(fp)
@@ -251,7 +303,8 @@ class EditorTab(QWidget):
 НО, работа продолжается. На вашей станции должен остановиться гружёный углём локомотив в 15:15.
 Подготовьте путь к его прибытию!
 """)
-        label.setStyleSheet("QLabel { background-color:snow; min-width: 400px; border-radius: 20px; border-style: solid; border-color:red; border-width: 4px; color: dimgray} ")
+        label.setStyleSheet(
+            "QLabel { background-color:snow; min-width: 400px; border-radius: 20px; border-style: solid; border-color:red; border-width: 4px; color: dimgray} ")
         # label.setStyleSheet("color: dimgray;")
         label.setFont(QFont("Arial", 11, QFont.Bold))
 
@@ -427,7 +480,8 @@ class EditorTab(QWidget):
                         svgWidget = QtSvg.QSvgWidget(self.rmap.el_config[el["uri"]]["svg_main"])
                         # print(self.rmap.el_config[el["uri"]]["svg_main"])
                         additional = (height * y) // 4
-                        svgWidget.setGeometry(x_s_el, w_s_y + additional, x_e_el - x_s_el, (y * height) - 2 * additional)
+                        svgWidget.setGeometry(x_s_el, w_s_y + additional, x_e_el - x_s_el,
+                                              (y * height) - 2 * additional)
                         # renderer = QtSvg.QSvgRenderer('elements\\anchoring.svg')
                         self.scene.addWidget(svgWidget)
                         textitem = self.scene.addText(el['text'])
@@ -442,8 +496,11 @@ class EditorTab(QWidget):
                             try:
                                 angle = math.atan(((y * height) - 2 * additional) / (x_e_el - x_s_el))
                                 textitem.setRotation(math.degrees(angle))
-                                text_x = x_s_el + (x_e_el - x_s_el) // 2 - (textitem.boundingRect().width() // 2) * math.cos(angle) + (textitem.boundingRect().height() * 0.7)
-                                text_y = w_s_y + (y // 2) - (textitem.boundingRect().width() // 2)* math.sin(angle) - textitem.boundingRect().height() * 0.7
+                                text_x = x_s_el + (x_e_el - x_s_el) // 2 - (
+                                            textitem.boundingRect().width() // 2) * math.cos(angle) + (
+                                                     textitem.boundingRect().height() * 0.7)
+                                text_y = w_s_y + (y // 2) - (textitem.boundingRect().width() // 2) * math.sin(
+                                    angle) - textitem.boundingRect().height() * 0.7
                             except Exception:
                                 text_x = x_s_el
                         else:

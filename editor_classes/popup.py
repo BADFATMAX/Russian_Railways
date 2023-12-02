@@ -171,13 +171,45 @@ class PopUpLogin(PopUp):
                 else:
                     msg = PopUpMsg(self, "Неверный логин или пароль!")
                     msg.show()
-        # if len(self.edit_line.text()) > 0:
-        #     self.exit_flag = True
-        #     self.content = {'new name': self.edit_line.text()}
-        #     self.parent.pop_up_handle(self)
-        #     self.close()
-        # else:
-        #     self.edit_line.setText("Название пути")
+
+
+class PopUpDev(PopUp):
+    def __init__(self, parent, op):
+        # super(PopUpInput, self).__init__(parent)
+        super().__init__(parent, op)
+
+        self.layout = QVBoxLayout()
+        self.setWindowTitle("Dev")
+
+        button_layout = QHBoxLayout()
+
+        cancel_button = QPushButton("Отмена")
+        cancel_button.clicked.connect(self.cancel)
+        button_layout.addWidget(cancel_button)
+
+        cl1 = QPushButton("__capture()")
+        cl1.clicked.connect(self.cl1)
+        button_layout.addWidget(cl1)
+
+        cl2 = QPushButton("__makeDataset()")
+        cl2.clicked.connect(self.cl2)
+        button_layout.addWidget(cl2)
+
+        self.layout.addLayout(button_layout)
+        self.setLayout(self.layout)
+
+    def cl1(self):
+        self.op = "__capture()"
+        self.exit_flag = True
+        self.parent.pop_up_handle(self)
+        self.close()
+
+    def cl2(self):
+        self.op = "__makeDataset()"
+        self.exit_flag = True
+        self.parent.pop_up_handle(self)
+        self.close()
+
 
 
 class PopUpInput(PopUp):
