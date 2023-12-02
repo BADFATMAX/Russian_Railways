@@ -8,6 +8,7 @@ import json
 ELEMENTS_DIR = 'elements'
 ELCONF_FILE = 'elements.json'
 
+
 class RailMap:
     def __init__(self, source: Union[str, None] = None):
         self.elements: dict[int, list[dict]] = {}
@@ -17,8 +18,10 @@ class RailMap:
         self.visible = False
         self.el_config = json.load(open(os.path.join(ELEMENTS_DIR, ELCONF_FILE), encoding='utf-8'))
         for el_config_i in self.el_config:
-            self.el_config[el_config_i]['svg_main'] = os.path.join(ELEMENTS_DIR, self.el_config[el_config_i]['svg_main'])
-            self.el_config[el_config_i]['svg_label'] = os.path.join(ELEMENTS_DIR, self.el_config[el_config_i]['svg_label'])
+            self.el_config[el_config_i]['svg_main'] = os.path.join(ELEMENTS_DIR,
+                                                                   self.el_config[el_config_i]['svg_main'])
+            self.el_config[el_config_i]['svg_label'] = os.path.join(ELEMENTS_DIR,
+                                                                    self.el_config[el_config_i]['svg_label'])
         if source is None:
             self.build_default()
         else:
@@ -89,6 +92,30 @@ class RailMap:
 
     def set_visible(self, flag: bool):
         self.visible = flag
+
+    def unite(self, other: 'RailMap'):
+        self.start = min(self.start, other.start)
+        self.end = max(self.end, other.end)
+
+        io = 0
+        i_append = len(self.ways)
+
+        for way in other.ways:
+            # way colision
+            if way in self.ways:
+                j = self.ways.index(way)
+                try:
+                    elems = self.elements[j]
+                    for el in other.elements[io]:
+                        elems.append(el)
+                    self.elements.update({j: elems})
+                except Exception:
+                    pass
+            else:
+                self.ways.append(way)
+                self.elements.update({i_append: other.elements[io]})
+                i_append += 1
+            io += 1
 
 # def build_xml_empty():
 #     rows = ['Перегон Ш-А', "1 путь", "2 путь", "ТО локомотива", "Бригада ПТО", "Сигналист", "Перегон А-Б"]

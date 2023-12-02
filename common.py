@@ -38,9 +38,9 @@ class CommonTab(QWidget):
         self.pushButton2.setStyleSheet(button_style)
         self.pushButton3.setStyleSheet(button_style)
 
-        self.pushButton.clicked.connect(self.cardgame)
-        self.pushButton2.clicked.connect(self.slidinggame)
-        self.pushButton3.clicked.connect(self.pianogame)
+        self.pushButton.clicked.connect(self.comrade)
+        self.pushButton2.clicked.connect(self.mine)
+        self.pushButton3.clicked.connect(self.unite)
         buttonLayout = QHBoxLayout()
         buttonLayout.addWidget(self.pushButton)
         buttonLayout.addWidget(self.pushButton2)
@@ -55,55 +55,28 @@ class CommonTab(QWidget):
             pixmap = QPixmap(f'GamePics/work{i}.jpg')
             label = QLabel()
             label.setPixmap(pixmap)
-            label.mousePressEvent = lambda event, game=i: self.on_picture_click(game)
+            label.mousePressEvent = lambda event, mode=i: self.on_picture_click(mode)
             self.pictureLayout.addWidget(label)
         
         # Add pictures to the main layout
         self.layout.addLayout(self.pictureLayout)
 
-    def on_picture_click(self, game):
-        if game == 1:
-            self.cardgame()
-        elif game == 2:
-            self.slidinggame()
-        elif game == 3:
-            self.pianogame()
+    def on_picture_click(self, mode):
+        if mode == 1:
+            self.comrade()
+        elif mode == 2:
+            self.mine()
+        elif mode == 3:
+            self.unite()
 
-    def cardgame(self):
-        # ws = QApplication.allWindows()
-        # for w in ws:
-        #   w.close()
-        # subprocess.run([f'{sys.executable}', 'games/CardGame/card_game.py'])
-        # for w in ws:
-        #   w.show()
+    def comrade(self):
         self.parent.tab_widget.setCurrentIndex(0)
-        self.parent.editor_tab.common_1()
+        self.parent.editor_tab.open_other()
 
-    def slidinggame(self):
-        # ws = QApplication.allWindows()
-        # for w in ws:
-        #     w.close()
-        # subprocess.run([f'{sys.executable}', 'games/Picture Sliding Puzzle/game.py'])
-        # for w in ws:
-        #     w.show()
+    def mine(self):
         self.parent.tab_widget.setCurrentIndex(0)
-        self.parent.editor_tab.common_2()
+        self.parent.editor_tab.open_mine()
 
-    def pianogame(self):
-        # ws = QApplication.allWindows()
-        # for w in ws:
-        #     w.close()
-        # subprocess.run(f"{sys.executable} games/PianoGame/main.py")
-        # for w in ws:
-        #     w.show()
+    def unite(self):
         self.parent.tab_widget.setCurrentIndex(0)
-        self.parent.editor_tab.common_3()
-
-    def game1(self):
-        self.cardgame()
-
-    def game2(self):
-        self.slidinggame()
-
-    def game3(self):
-        self.pianogame()
+        self.parent.editor_tab.do_union()

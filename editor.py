@@ -1,15 +1,18 @@
-from PyQt5 import QtSvg
-from PyQt5.QtCore import QPointF, QPoint, QSize
+from datetime import datetime
+
+from PyQt5 import QtSvg, QtGui
+from PyQt5.QtCore import QPointF, QPoint, QSize, QRect, QRectF
 from PyQt5.QtCore import QPointF
 from PyQt5.QtCore import Qt, QMimeData
-from PyQt5.QtGui import QDrag, QPixmap, QPainter, QPolygonF, QPen, QBrush, QWheelEvent, QFont
+from PyQt5.QtGui import QDrag, QPixmap, QPainter, QPolygonF, QPen, QBrush, QWheelEvent, QFont, QImage
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QGraphicsScene, QGraphicsView, \
     QFileDialog, QGridLayout, QFrame, QApplication, QScrollArea
 
 from editor_classes.draggable import DraggableLabel
 from editor_classes.editorscene import EditorScene
-from editor_classes.popup import PopUpInput, PopUp, PopUpEditWay, deleteItemsOfLayout, PopUpInsertElement, pushButtonStyle, \
-    PopUpEditElement
+from editor_classes.popup import PopUpInput, PopUp, PopUpEditWay, deleteItemsOfLayout, PopUpInsertElement, \
+    pushButtonStyle, \
+    PopUpEditElement, PopUpMsg
 from map_class import RailMap
 import math
 
@@ -38,6 +41,36 @@ class EditorView(QGraphicsView):
             self.scale(0.625, 0.625)
         self.parent().draw_map()
 
+    def mouseDoubleClickEvent(self, event: QtGui.QMouseEvent) -> None:
+        folder = "captures" + datetime.now().strftime("%d_%m_%y_%H_%M_%S")
+        os.mkdir(folder)
+
+        map:RailMap = self.parent().rmap
+        x = 180
+        xhalf = x//2
+        y = 50
+        x0 = 50
+        y0 = 50
+        w_s_y = y0
+        w_s_x = x0 + x
+        # hours = map.end - map.start + 1
+        hours = [[f"{h}", f"{h}_30"] for h in list(range(map.start, map.end))]
+        hours = [jj for ii in hours for jj in ii]
+        for idx, way in enumerate(map.ways):
+            for hour in hours:
+                area = QRect(w_s_x, w_s_y, xhalf, y)
+                pixmap = QtGui.QPixmap(90 * 3, 50 * 3)
+                pixmap.fill(QtGui.QColor("white"))
+
+                painter = QPainter(pixmap)
+                self.parent().scene.render(painter, QRectF(pixmap.rect()), QRectF(area))
+                painter.end()
+
+                image = pixmap.toImage()
+                image.save(os.path.join(folder, f"{idx}_{way[0]}_{hour}" + ".png"))
+                w_s_x+=xhalf
+            w_s_y+=y
+            w_s_x = x0 + x
 
 class DashPen(QPen):
     def __init__(self, *args, **kwargs):
@@ -169,23 +202,41 @@ class EditorTab(QWidget):
         scroll.setWidget(scroll_content)
         self.setLayout(self.layout)
     
-    def common_1(self):
-        fp = os.path.join(os.path.dirname(__file__), "maps", "work1.xml")
-        self.rmap = RailMap(fp)
-        self.rmap.set_visible(True)
-        self.draw_map()
+    def open_other(self):
+        fp = os.path.join(os.path.dirname(__file__), "maps", "other.xml")
+        if not os.path.exists(fp):
+            msg = PopUpMsg(self, op="Работа товарища не найдена!")
+            msg.show()
+        else:
+            self.rmap = RailMap(fp)
+            self.rmap.set_visible(True)
+            self.draw_map()
     
-    def common_2(self):
-        fp = os.path.join(os.path.dirname(__file__), "maps", "work2.xml")
-        self.rmap = RailMap(fp)
-        self.rmap.set_visible(True)
-        self.draw_map()
+    def open_mine(self):
+        fp = os.path.join(os.path.dirname(__file__), "maps", "mine.xml")
+        if not os.path.exists(fp):
+            msg = PopUpMsg(self, op="Ваша работа не найдена!")
+            msg.show()
+        else:
+            self.rmap = RailMap(fp)
+            self.rmap.set_visible(True)
+            self.draw_map()
     
-    def common_3(self):
-        fp = os.path.join(os.path.dirname(__file__), "maps", "work3.xml")
-        self.rmap = RailMap(fp)
-        self.rmap.set_visible(True)
-        self.draw_map()
+    def do_union(self):
+        fp1 = os.path.join(os.path.dirname(__file__), "maps", "other.xml")
+        fp2 = os.path.join(os.path.dirname(__file__), "maps", "mine.xml")
+        if not os.path.exists(fp1):
+            msg = PopUpMsg(self, op="Работа товарища не найдена!")
+            msg.show()
+        elif not os.path.exists(fp2):
+            msg = PopUpMsg(self, op="Ваша работа не найдена!")
+            msg.show()
+        else:
+            self.rmap = RailMap(fp1)
+            rmap_append = RailMap(fp2)
+            self.rmap.unite(rmap_append)
+            self.rmap.set_visible(True)
+            self.draw_map()
 
     
     def story_load(self):
