@@ -2,6 +2,8 @@ from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel, QHBoxLayo
 from PyQt5.QtGui import QPixmap, QFont
 from PyQt5.QtCore import Qt
 
+from nn.functions import get_result
+
 class RewButton(QPushButton):
     def __init__(self, parent, *args, **kwargs):
         super().__init__(parent=parent, *args, **kwargs)
@@ -55,28 +57,26 @@ class AiRewButton(QPushButton):
         for sj in siblings:
             if isinstance(sj,  QTextBrowser):
                 doc = sj
-        import random
-        def offset():
-            if random.random() > 0.5:
-                sign = 1
-            else:
-                sign = 1
-            a = (random.random() - 0.1) / 5
-            return a * sign
+        import os
+        self.parent.parent.editor_tab.open_by_fp(os.path.join(os.path.dirname(__file__), "maps", "rew.xml"))
+        folder = self.parent.parent.editor_tab.view.exec_method("__capture", infix=".ai_rew.")
+
+        res = get_result(folder)
         if self.parent.first_ai_rew:
             self.parent.doc_text.append("<ol>")
-            self.parent.doc_text.append(f"<li>{0.7133 + offset():1.5}<li>")
+            self.parent.doc_text.append(f"<li>{res:1.5}<li>")
             self.parent.doc_text.append(f"</ol>")
             self.parent.first_ai_rew = False
         else:
-            self.parent.doc_text.insert(-1, f"<li>{0.7133 + offset():1.5}</li>")
+            self.parent.doc_text.insert(-1, f"<li>{res:1.5}</li>")
         doc.setHtml("".join(self.parent.doc_text))
 
 
 
 class ReviewTab(QWidget):
-    def __init__(self):
+    def __init__(self, parent):
         super().__init__()
+        self.parent = parent
         self.first_ai_rew = True
         self.doc_text= ["""
 <h3>Результаты:</h3>
@@ -98,7 +98,7 @@ class ReviewTab(QWidget):
 
         self.ai_layout = QVBoxLayout()
         ai_button = AiRewButton(self, "Проверка с помощью ИИ")
-        ai_button.clicked.connect(ai_button.clicked_method)
+        ai_button.clicked.connect(ai_button.clicked_method, Qt.QueuedConnection)
         
         ai_res = QTextBrowser()
         ai_res.setStyleSheet("QTextBrowser { background-color: white; }")

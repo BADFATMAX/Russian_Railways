@@ -4,3 +4,6 @@ editor_classes/__pycache__/
 games/CardGame/__pycache__/
 games/Picture Sliding Puzzle/__pycache__/
 games/PianoGame/__pycache__/
+captures/
+captures_dataset/
+build/

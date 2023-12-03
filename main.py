@@ -20,7 +20,7 @@ class MainWindow(QMainWindow):
         self.editor_tab = EditorTab(self)
         history_tab = HistoryTab()
         story_tab = StoryTab(self)
-        review_tab = ReviewTab()
+        review_tab = ReviewTab(self)
         rhythm_game = GamesTab(self)
         common_tab = CommonTab(self)
         docs_tab = DocumentationTab()

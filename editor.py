@@ -124,6 +124,14 @@ class EditorView(QGraphicsView):
             w_s_y += y
             w_s_x = x0 + x
 
+        return folder
+
+    def exec_method(self, name, *args, **kwargs):
+        if name == "__capture":
+            return self.__capture(*args, **kwargs)
+        else:
+            return None
+
 
 class DashPen(QPen):
     def __init__(self, *args, **kwargs):
@@ -267,6 +275,15 @@ class EditorTab(QWidget):
 
     def open_mine(self):
         fp = os.path.join(os.path.dirname(__file__), "maps", "mine.xml")
+        if not os.path.exists(fp):
+            msg = PopUpMsg(self, op="Ваша работа не найдена!")
+            msg.show()
+        else:
+            self.rmap = RailMap(fp)
+            self.rmap.set_visible(True)
+            self.draw_map()
+
+    def open_by_fp(self, fp):
         if not os.path.exists(fp):
             msg = PopUpMsg(self, op="Ваша работа не найдена!")
             msg.show()
